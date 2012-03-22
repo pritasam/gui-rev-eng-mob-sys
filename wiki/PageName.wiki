@@ -4,11 +4,3 @@
 
 Archos 70IT rooten:
 http://forum.xda-developers.com/showthread.php?t=930197
-
-
-= Details =
-
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages

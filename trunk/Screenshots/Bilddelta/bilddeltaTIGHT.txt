@@ -1,0 +1,6 @@
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 0, width: 480, height: 136, encodingType: TIGHT]
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 136, width: 480, height: 136, encodingType: TIGHT]
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 272, width: 480, height: 136, encodingType: TIGHT]
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 408, width: 480, height: 136, encodingType: TIGHT]
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 544, width: 480, height: 136, encodingType: TIGHT]
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 680, width: 480, height: 120, encodingType: TIGHT]

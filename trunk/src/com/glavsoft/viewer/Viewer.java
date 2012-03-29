@@ -87,6 +87,9 @@ import com.glavsoft.viewer.swing.gui.ConnectionDialog;
 import com.glavsoft.viewer.swing.gui.OptionsDialog;
 import com.glavsoft.viewer.swing.gui.PasswordDialog;
 
+import de.ostfalia.viewer.inputrecorder.CInputRecorder;
+import de.ostfalia.viewer.logger.CLogger;
+
 @SuppressWarnings("serial")
 public class Viewer extends JApplet implements Runnable, ISessionController, WindowListener, IChangeSettingsListener {
 	public static final String ARG_LOCAL_POINTER = "LocalPointer";
@@ -383,7 +386,7 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 	}
 
 	protected void createButtonsPanel(Container container,
-			final ProtocolContext context) {
+			final ProtocolContext context) {		
 		JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 1));
 
 		Insets buttonsMargin = new Insets(2, 2, 2, 2);
@@ -575,7 +578,8 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 		androidScreenshot.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				//closeApp();
+				// Neues Messageevent für Input buttons
+				//CInputRecorder.getInst().saveScreenshot(, System.currentTimeMillis());
 			}
 		});
 		

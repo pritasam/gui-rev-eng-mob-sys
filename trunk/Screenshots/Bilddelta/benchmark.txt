@@ -1,0 +1,2 @@
+Tight: 2-3 FPS
+Hextile: 3-4 FPS

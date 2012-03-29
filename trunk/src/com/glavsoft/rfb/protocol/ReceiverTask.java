@@ -164,11 +164,12 @@ public class ReceiverTask implements Runnable {
 			/**
 			 * O. Laudi
 			 */
-			CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): rect " + rect.toString());
 			
 //			logger.info(rect.toString());
 			if (decoder != null) {
+				reader.mark();
 				decoder.decode(reader, renderer, rect);
+				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): rect " + rect.toString()+" len "+reader.countFromMark());
 				repaintController.repaintBitmap(rect);
 			} else if (rect.getEncodingType() == EncodingType.RICH_CURSOR) {
 				RichCursorDecoder.getInstance().decode(reader, renderer, rect);

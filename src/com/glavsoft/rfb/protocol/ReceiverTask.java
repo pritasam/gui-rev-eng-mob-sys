@@ -52,6 +52,8 @@ import com.glavsoft.rfb.encoding.decoder.FramebufferUpdateRectangle;
 import com.glavsoft.rfb.encoding.decoder.RichCursorDecoder;
 import com.glavsoft.transport.Reader;
 
+import de.ostfalia.viewer.logger.CLogger;
+
 public class ReceiverTask implements Runnable {
 	private static final byte FRAMEBUFFER_UPDATE = 0;
 	private static final byte SET_COLOR_MAP_ENTRIES = 1;
@@ -158,6 +160,12 @@ public class ReceiverTask implements Runnable {
 			rect.fill(reader);
 
 			Decoder decoder = decoders.getDecoderByType(rect.getEncodingType());
+			
+			/**
+			 * O. Laudi
+			 */
+			CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): rect " + rect.toString());
+			
 //			logger.info(rect.toString());
 			if (decoder != null) {
 				decoder.decode(reader, renderer, rect);
@@ -207,26 +215,12 @@ public class ReceiverTask implements Runnable {
 		isRunning = false;
 	}
 	
-	/**
-	 * O. laudi
-	 * 
-	 */
-	public void saveScreenshot() {
-		BufferedImage image = new BufferedImage(renderer.getWidth(), renderer.getHeight(), BufferedImage.TYPE_INT_RGB);
-		image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
-		
-		try {
-		    // retrieve image
-		    File outputfile = new File("D:\\saved_" + System.currentTimeMillis() + ".png");
-		    ImageIO.write(image, "png", outputfile);
-		} catch (IOException e) {
-		    e.printStackTrace();
-		}
-		
-	}
 	
 	/**
 	 * O. Laudi
+	 * @return the renderer
 	 */
-
+	public Renderer getRenderer() {
+		return renderer;
+	}
 }

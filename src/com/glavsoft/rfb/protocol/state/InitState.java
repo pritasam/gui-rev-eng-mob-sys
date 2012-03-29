@@ -33,6 +33,8 @@ import com.glavsoft.rfb.encoding.ServerInitMessage;
 import com.glavsoft.rfb.protocol.ProtocolContext;
 import com.glavsoft.rfb.protocol.ProtocolSettings;
 
+import de.ostfalia.viewer.logger.CLogger;
+
 /**
  * ClientInit
  *
@@ -69,6 +71,11 @@ public class InitState extends ProtocolState {
 
 	protected void clientAndServerInit() throws TransportException {
 		ServerInitMessage serverInitMessage = getServerInitMessage();
+		/**
+		 * O. laudi
+		 */
+		CLogger.getInst(CLogger.FILE).writeline(serverInitMessage.toString());
+		
 		ProtocolSettings settings = context.getSettings();
 		settings.enableAllEncodingCaps();
 		completeContextData(serverInitMessage);

@@ -50,6 +50,8 @@ import com.glavsoft.rfb.protocol.state.ProtocolState;
 import com.glavsoft.transport.Reader;
 import com.glavsoft.transport.Writer;
 
+import de.ostfalia.viewer.inputrecorder.CInputRecorder;
+
 public class Protocol implements ProtocolContext, IChangeSettingsListener {
 	private ProtocolState state;
 	private final Logger logger = Logger.getLogger("com.glavsoft.rfb.protocol");
@@ -211,12 +213,7 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 		/**
 		 * O. Laudi
 		 */
-		if (message instanceof PointerEventMessage) {
-			// Click
-			if (((PointerEventMessage) message).getButtonMask() == 1) {
-				receiverTask.saveScreenshot();
-			}
-		}
+		CInputRecorder.getInst().processMessage(message, receiverTask);
 		/**
 		 * O. Laudi
 		 */

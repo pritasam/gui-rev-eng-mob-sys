@@ -1,0 +1,1 @@
+ReceiverTask::framebufferUpdateMessage(): rect FramebufferUpdateRect: [x: 0, y: 0, width: 480, height: 800, encodingType: RAW_ENCODING]

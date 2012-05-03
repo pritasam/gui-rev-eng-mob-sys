@@ -24,13 +24,17 @@ import de.ostfalia.viewer.logger.CLogger;
 public class CInputRecorder{
 	
 	private static CInputRecorder	m_instance;
+	private CImageComparer			m_imageCmp;
 	private byte					m_lastButtonMask;
+	private boolean					m_isFirstImgSaved;
 	
 	/**
 	 * Constructor
 	 */
 	private CInputRecorder() {
-		m_lastButtonMask = 0;
+		m_lastButtonMask 	= 0;
+		m_imageCmp 			= null;
+		m_isFirstImgSaved 	= false;
 	}
 	
 	/**
@@ -39,11 +43,18 @@ public class CInputRecorder{
 	 */
 	public static CInputRecorder getInst() {
 		if ( m_instance == null) {
-			m_instance = new CInputRecorder();
+			m_instance 			= new CInputRecorder();
 		}
 		return m_instance;
 	}
 	
+	/**
+	 * @return the m_imageCmp
+	 */
+	public CImageComparer getImageCmp() {
+		return m_imageCmp;
+	}
+
 	/**
 	 * Handels the extended behavior to the SendMessage-method in the Protocol-class
 	 * @param message
@@ -61,19 +72,33 @@ public class CInputRecorder{
 			// Click
 			if (m_lastButtonMask != ((PointerEventMessage) message).getButtonMask()) {
 				CLogger.getInst(CLogger.FILE).writeline("InputRecorder::processMessage: " + message.toString());
-				saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+				prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+//				saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 			}
 			
 			m_lastButtonMask = ((PointerEventMessage) message).getButtonMask();
 		}
 		else if (message instanceof KeyEventMessage) {
-			saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+			prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+//			saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 		}
 	}
 	
 	/**
+	 * Prepares the CImageCompare-class
+	 * @param renderer
+	 */
+	private void prepareImageCompare(Renderer renderer, long lTimestamp) {
+		BufferedImage image = new BufferedImage(renderer.getWidth(), renderer.getHeight(), BufferedImage.TYPE_INT_RGB);
+		image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
+		// Save image to CImageComparer
+		m_imageCmp = new CImageComparer(image, lTimestamp);
+		m_isFirstImgSaved = true;
+	}
+	
+	/**
 	 * Saves a screenshot in the path %app%/Screenshots/ from a rendererobject.
-	 * The Timpestamp is am vlaue in millioseconds to identify the Eventtime
+	 * The Timestamp is am vlaue in milliseconds to identify the Eventtime
 	 * @param renderer
 	 * @param lTimestamp
 	 */
@@ -91,5 +116,22 @@ public class CInputRecorder{
 		    e.printStackTrace();
 		}
 		
+	}
+	
+	/**
+	 * Processes an imagecompare between a set masterimage an the 
+	 * current given image in the renderer
+	 * @param renderer
+	 * @return isDifferent
+	 */
+	public boolean processImageCompare(Renderer renderer) {
+		boolean isDifferent = false;
+		if (m_isFirstImgSaved) {
+			BufferedImage image = new BufferedImage(renderer.getWidth(), renderer.getHeight(), BufferedImage.TYPE_INT_RGB);
+			image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
+			
+			isDifferent = m_imageCmp.compareMasterWith(image);
+		}
+		return isDifferent;
 	}
 }

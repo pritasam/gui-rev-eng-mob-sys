@@ -52,6 +52,7 @@ import com.glavsoft.rfb.encoding.decoder.FramebufferUpdateRectangle;
 import com.glavsoft.rfb.encoding.decoder.RichCursorDecoder;
 import com.glavsoft.transport.Reader;
 
+import de.ostfalia.viewer.inputrecorder.CInputRecorder;
 import de.ostfalia.viewer.logger.CLogger;
 
 public class ReceiverTask implements Runnable {
@@ -96,6 +97,7 @@ public class ReceiverTask implements Runnable {
 		while (isRunning) {
 			try {
 				byte messageId = reader.readByte();
+				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::run(): messageId " + messageId);
 				switch (messageId) {
 				case FRAMEBUFFER_UPDATE:
 //					logger.fine("Server message: FramebufferUpdate (0)");
@@ -155,6 +157,7 @@ public class ReceiverTask implements Runnable {
 	public void framebufferUpdateMessage() throws CommonException {
 		reader.readByte(); // padding
 		int numberOfRectangles = reader.readUInt16();
+		CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): numberOfRectangles " + numberOfRectangles );
 		while (numberOfRectangles-- > 0) {
 			FramebufferUpdateRectangle rect = new FramebufferUpdateRectangle();
 			rect.fill(reader);
@@ -201,7 +204,24 @@ public class ReceiverTask implements Runnable {
 				context.sendRefreshMessage();
 				logger.fine("sent: nonincremental fb update");
 			} else {
+				/**
+				 * O. laudi
+				 * after full bufferrefresh check, if compare is needed and check for differences
+				 */
+				if (CInputRecorder.getInst().processImageCompare(renderer)) {
+					// Successful comparison --> Check for Differences
+					if (CInputRecorder.getInst().getImageCmp() != null) {
+						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+							CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
+							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+						}
+					}
+							
+//							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+				}
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);
+				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): sendMessage " + fullscreenFbUpdateIncrementalRequest.toString());
 			}
 		}
 	}

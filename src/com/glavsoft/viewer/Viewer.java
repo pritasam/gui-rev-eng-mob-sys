@@ -571,7 +571,7 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 		buttonBar.add(Box.createHorizontalStrut(10));
 		
 		JButton androidScreenshot = new JButton(Utils.getButtonIcon("screenshot"));
-		androidScreenshot.setToolTipText("Screenshot");
+		androidScreenshot.setToolTipText("Rotate");
 		androidScreenshot.setMargin(buttonsMargin);
 		androidScreenshot.setAlignmentX(RIGHT_ALIGNMENT);
 		buttonBar.add(androidScreenshot);
@@ -777,6 +777,11 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 	private void sendAndroidSearchKey(ProtocolContext context) {
 		context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, true));
 		context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, false));
+	}
+	
+	private void sendAndroidRotateKey(ProtocolContext context) {
+		context.sendMessage(new KeyEventMessage(Keymap.K_F4, true));
+		context.sendMessage(new KeyEventMessage(Keymap.K_F4, false));
 	}
 	
 	/**

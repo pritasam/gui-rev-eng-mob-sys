@@ -56,24 +56,24 @@ import de.ostfalia.viewer.inputrecorder.CInputRecorder;
 import de.ostfalia.viewer.logger.CLogger;
 
 public class ReceiverTask implements Runnable {
-	private static final byte FRAMEBUFFER_UPDATE = 0;
-	private static final byte SET_COLOR_MAP_ENTRIES = 1;
-	private static final byte BELL = 2;
-	private static final byte SERVER_CUT_TEXT = 3;
+	protected static final byte FRAMEBUFFER_UPDATE = 0;
+	protected static final byte SET_COLOR_MAP_ENTRIES = 1;
+	protected static final byte BELL = 2;
+	protected static final byte SERVER_CUT_TEXT = 3;
 
 
-	private static Logger logger = Logger.getLogger("com.glavsoft.rfb.protocol.ReceiverTask");
-	private final Reader reader;
-	private volatile boolean isRunning = false;
-	private Renderer renderer;
-	private final IRepaintController repaintController;
-	private final ClipboardController clipboardController;
-	private final DecodersContainer decoders;
-	private final ISessionController sessionManager;
-	private FramebufferUpdateRequestMessage fullscreenFbUpdateIncrementalRequest;
-	private final ProtocolContext context;
-	private PixelFormat pixelFormat;
-	private boolean needSendPixelFormat;
+	protected static Logger logger = Logger.getLogger("com.glavsoft.rfb.protocol.ReceiverTask");
+	protected final Reader reader;
+	protected volatile boolean isRunning = false;
+	protected Renderer renderer;
+	protected final IRepaintController repaintController;
+	protected final ClipboardController clipboardController;
+	protected final DecodersContainer decoders;
+	protected final ISessionController sessionManager;
+	protected FramebufferUpdateRequestMessage fullscreenFbUpdateIncrementalRequest;
+	protected final ProtocolContext context;
+	protected PixelFormat pixelFormat;
+	protected boolean needSendPixelFormat;
 
 	public ReceiverTask(Reader reader,
 			IRepaintController repaintController, ClipboardController clipboardController,
@@ -90,6 +90,64 @@ public class ReceiverTask implements Runnable {
 		fullscreenFbUpdateIncrementalRequest =
 			new FramebufferUpdateRequestMessage(0, 0, context.getFbWidth(), context.getFbHeight(), true);
 	}
+	
+	/**
+	 * O. Laudi start
+	 * Copy Constructor
+	 */
+	public ReceiverTask(ReceiverTask rt) {
+		this(rt.getReader(), rt.getRepaintController(),
+				rt.getClipboardController(), rt.getSessionManager(),
+				rt.getDecoders(), rt.getContext());
+	}
+
+	
+	
+	/**
+	 * @return the reader
+	 */
+	public Reader getReader() {
+		return reader;
+	}
+
+	/**
+	 * @return the repaintController
+	 */
+	public IRepaintController getRepaintController() {
+		return repaintController;
+	}
+
+	/**
+	 * @return the clipboardController
+	 */
+	public ClipboardController getClipboardController() {
+		return clipboardController;
+	}
+
+	/**
+	 * @return the decoders
+	 */
+	public DecodersContainer getDecoders() {
+		return decoders;
+	}
+
+	/**
+	 * @return the sessionManager
+	 */
+	public ISessionController getSessionManager() {
+		return sessionManager;
+	}
+
+	/**
+	 * @return the context
+	 */
+	public ProtocolContext getContext() {
+		return context;
+	}
+	
+	/**
+	 * O. Laudi End
+	 */
 
 	@Override
 	public void run() {

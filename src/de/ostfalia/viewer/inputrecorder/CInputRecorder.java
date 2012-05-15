@@ -56,6 +56,13 @@ public class CInputRecorder{
 	}
 
 	/**
+	 * @return the m_isFirstImgSaved
+	 */
+	public boolean isFirstImgSaved() {
+		return m_isFirstImgSaved;
+	}
+
+	/**
 	 * Handels the extended behavior to the SendMessage-method in the Protocol-class
 	 * @param message
 	 * @param receiverTask
@@ -131,6 +138,11 @@ public class CInputRecorder{
 			image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
 			
 			isDifferent = m_imageCmp.compareMasterWith(image);
+		}
+		else
+		{
+			// Set Masterimage
+			prepareImageCompare(renderer, System.currentTimeMillis());
 		}
 		return isDifferent;
 	}

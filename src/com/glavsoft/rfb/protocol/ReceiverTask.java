@@ -206,7 +206,7 @@ public class ReceiverTask implements Runnable {
 		}
 	}
 
-	private void serverCutText() throws TransportException {
+	protected void serverCutText() throws TransportException {
 		reader.readByte();  // padding
 		reader.readInt16(); // padding
 		clipboardController.updateSystemClipboard(reader.readString());

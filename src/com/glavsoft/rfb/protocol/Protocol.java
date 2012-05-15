@@ -51,6 +51,7 @@ import com.glavsoft.transport.Reader;
 import com.glavsoft.transport.Writer;
 
 import de.ostfalia.viewer.inputrecorder.CInputRecorder;
+import de.ostfalia.viewer.inputrecorder.CMasterReceiverTask;
 import de.ostfalia.viewer.inputrecorder.CReceiverTaskProvider;
 
 public class Protocol implements ProtocolContext, IChangeSettingsListener {
@@ -198,22 +199,23 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 		/**
 		 * O. Laudi Start
 		 */
-		receiverTask = CReceiverTaskProvider.getInst().getReceiverTask(reader, 
-				repaintController, clipboardController, sessionManager, decoders, 
-				this);
-		ReceiverTask receiverTaskTmp = new ReceiverTask(receiverTask);
+//		receiverTask = CReceiverTaskProvider.getInst().getReceiverTask(reader,
+//				repaintController, clipboardController, sessionManager, decoders, 
+//				this);
+		receiverTask = new CMasterReceiverTask(reader, repaintController, clipboardController, sessionManager, decoders, this);
+		//ReceiverTask receiverTaskTmp = new ReceiverTask(receiverTask);
 //		receiverTask = new ReceiverTask(
 //				reader, repaintController,
 //				clipboardController, sessionManager,
 //				decoders, this);
-		stopTasks();
-		
-		sendRefreshMessage();
-		senderTask = new SenderTask(messageQueue, writer, sessionManager);
-		new Thread(senderTask).start();
-		decoders.resetDecoders();
-		
-		receiverTask = receiverTaskTmp;
+//		stopTasks();
+//		
+//		sendRefreshMessage();
+//		senderTask = new SenderTask(messageQueue, writer, sessionManager);
+//		new Thread(senderTask).start();
+//		decoders.resetDecoders();
+//		
+//		receiverTask = receiverTaskTmp;
 		/**
 		 * O. laudi End
 		 */

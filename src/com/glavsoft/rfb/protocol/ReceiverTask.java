@@ -74,6 +74,8 @@ public class ReceiverTask implements Runnable {
 	protected final ProtocolContext context;
 	protected PixelFormat pixelFormat;
 	protected boolean needSendPixelFormat;
+	protected boolean	m_isSaved;
+	protected long		m_lTime;
 
 	public ReceiverTask(Reader reader,
 			IRepaintController repaintController, ClipboardController clipboardController,
@@ -85,6 +87,8 @@ public class ReceiverTask implements Runnable {
 		this.context = context;
 		this.sessionManager = sessionManager;
 		this.decoders = decoders;
+		this.m_lTime = 0;
+		this.m_isSaved = true;
 		renderer = repaintController.createRenderer(reader, context.getFbWidth(), context.getFbHeight(),
 				context.getPixelFormat());
 		fullscreenFbUpdateIncrementalRequest =
@@ -266,18 +270,41 @@ public class ReceiverTask implements Runnable {
 				 * O. laudi
 				 * after full bufferrefresh check, if compare is needed and check for differences
 				 */
-				if (CInputRecorder.getInst().processImageCompare(renderer)) {
-					// Successful comparison --> Check for Differences
-					if (CInputRecorder.getInst().getImageCmp() != null) {
-						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
-							CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
-							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
-							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
-						}
-					}
-							
-//							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+				if (CInputRecorder.getInst().isEventMessage() && m_isSaved) {
+					// if Pointer- or KeyEventMessage, then save time
+					m_lTime = System.currentTimeMillis();
+					m_isSaved = false;
+					CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isEventMessage()");
 				}
+				
+				if (!m_isSaved) {
+					m_isSaved = true;
+					CInputRecorder.getInst().processImageCompare(renderer);
+					CInputRecorder.getInst().resetEventMessage();
+					// Equal pics found
+					CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): Timeout after 2 seconds!");
+					CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
+//					CInputRecorder.getInst().getImageCmp().saveCurrentAsPicFile();
+					// get deltaimage
+					if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+						CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): save different " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+						CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+					}
+				}
+				
+				
+//				if (CInputRecorder.getInst().processImageCompare(renderer)) {
+//					// Successful comparison --> Check for Differences
+//					if (CInputRecorder.getInst().getImageCmp() != null) {
+//						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+//							CInputRecorder.getInst().getImageCmp().saveCurrentAsPicFile();
+//							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+//							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+//						}
+//					}
+//							
+////							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+//				}
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);
 				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): sendMessage " + fullscreenFbUpdateIncrementalRequest.toString());
 			}

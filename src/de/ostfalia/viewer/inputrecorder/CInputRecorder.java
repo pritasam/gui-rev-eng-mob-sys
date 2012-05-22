@@ -27,6 +27,7 @@ public class CInputRecorder{
 	private CImageComparer			m_imageCmp;
 	private byte					m_lastButtonMask;
 	private boolean					m_isFirstImgSaved;
+	private boolean					m_isEventMessage;
 	
 	/**
 	 * Constructor
@@ -35,6 +36,7 @@ public class CInputRecorder{
 		m_lastButtonMask 	= 0;
 		m_imageCmp 			= null;
 		m_isFirstImgSaved 	= false;
+		m_isEventMessage	= false;
 	}
 	
 	/**
@@ -63,6 +65,20 @@ public class CInputRecorder{
 	}
 
 	/**
+	 * @return the m_isEventMessage
+	 */
+	public boolean isEventMessage() {
+		return m_isEventMessage;
+	}
+
+	/**
+	 * sets isEventMessage to false
+	 */
+	public void resetEventMessage() {
+		this.m_isEventMessage = false;
+	}
+
+	/**
 	 * Handels the extended behavior to the SendMessage-method in the Protocol-class
 	 * @param message
 	 * @param receiverTask
@@ -72,14 +88,16 @@ public class CInputRecorder{
 		
 		if (message instanceof PointerEventMessage) {}
 		else {
-			CLogger.getInst(CLogger.FILE).writeline("InputRecorder::processMessage: " + message.toString());
+			CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
 		}
 		
 		if (message instanceof PointerEventMessage) {
 			// Click
-			if (m_lastButtonMask != ((PointerEventMessage) message).getButtonMask()) {
-				CLogger.getInst(CLogger.FILE).writeline("InputRecorder::processMessage: " + message.toString());
+			if ((1 == ((PointerEventMessage) message).getButtonMask()) && (m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+				CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
 				prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+//				m_imageCmp.saveMasterAsPicFile();
+				this.m_isEventMessage = true;
 //				saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 			}
 			
@@ -87,6 +105,8 @@ public class CInputRecorder{
 		}
 		else if (message instanceof KeyEventMessage) {
 			prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+//			m_imageCmp.saveMasterAsPicFile();
+			this.m_isEventMessage = true;
 //			saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 		}
 	}

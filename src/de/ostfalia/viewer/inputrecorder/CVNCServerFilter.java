@@ -28,7 +28,8 @@ import de.ostfalia.viewer.logger.CLogger;
  *
  */
 public class CVNCServerFilter extends ReceiverTask {
-
+	private boolean	m_isDifferent;
+	
 	/* (non-Javadoc)
 	 * @see com.glavsoft.rfb.protocol.ReceiverTask#framebufferUpdateMessage()
 	 */
@@ -87,18 +88,50 @@ public class CVNCServerFilter extends ReceiverTask {
 				 * O. laudi
 				 * after full bufferrefresh check, if compare is needed and check for differences
 				 */
-				if (CInputRecorder.getInst().processImageCompare(renderer)) {
-					// Successful comparison --> Check for Differences
-					if (CInputRecorder.getInst().getImageCmp() != null) {
-						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+				if (CInputRecorder.getInst().isEventMessage() && m_isSaved) {
+					// if Pointer- or KeyEventMessage, then save time
+					m_lTime = System.currentTimeMillis();
+					m_isSaved = false;
+					CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isEventMessage()");
+				}
+				
+				// process only, if EventMessage is not successfully processed
+				if (!m_isSaved) {
+					m_isDifferent = CInputRecorder.getInst().processImageCompare(renderer);
+					CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isDifferent " + m_isDifferent);
+					
+					if (m_isDifferent) {
+						// Timeout: after 2 Seconds with enduring changes --> save
+						if ((System.currentTimeMillis() - m_lTime) > 2000) {
+							m_isSaved = true;
+							CInputRecorder.getInst().resetEventMessage();
+							// Equal pics found
+							CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): Timeout after 2 seconds!");
 							CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
-							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+//							CInputRecorder.getInst().getImageCmp().saveCurrentAsPicFile();
+							// get deltaimage
+							if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+								CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): save different " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+								CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+							}
+						}
+					}
+					else
+					{
+						// Equal pics found
+						m_isSaved = true;
+						CInputRecorder.getInst().resetEventMessage();
+						CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): Equal pics found!");
+						CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
+//						CInputRecorder.getInst().getImageCmp().saveCurrentAsPicFile();
+						// save pic
+						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+							CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): save equal " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
 							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
 						}
 					}
-							
-//							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
 				}
+				
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);
 				CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): sendMessage " + fullscreenFbUpdateIncrementalRequest.toString());
 			}
@@ -120,7 +153,7 @@ public class CVNCServerFilter extends ReceiverTask {
 			ProtocolContext context) {
 		super(reader, repaintController, clipboardController, sessionManager, decoders,
 				context);
-		// TODO Auto-generated constructor stub
+		m_isDifferent = false;
 	}
 
 }

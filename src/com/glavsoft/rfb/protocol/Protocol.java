@@ -52,7 +52,6 @@ import com.glavsoft.transport.Writer;
 
 import de.ostfalia.viewer.inputrecorder.CInputRecorder;
 import de.ostfalia.viewer.inputrecorder.CMasterReceiverTask;
-import de.ostfalia.viewer.inputrecorder.CReceiverTaskProvider;
 
 public class Protocol implements ProtocolContext, IChangeSettingsListener {
 	private ProtocolState state;

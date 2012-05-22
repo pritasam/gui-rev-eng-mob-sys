@@ -19,10 +19,10 @@ import de.ostfalia.viewer.logger.CLogger;
  *
  */
 public class CMasterReceiverTask extends ReceiverTask {
-	private int state; //0=test 1=Filter 2=normal
-	private long time;
-	private CVNCServerTester tester;
-	private CVNCServerFilter filter;
+	private EReceiverState		m_eState; //0=test 1=Filter 2=normal
+	private final double 		m_dEpsilon = 0.0;
+	private CVNCServerTester 	m_stTester;
+	private CVNCServerFilter 	m_sfFilter;
 	
 	public CMasterReceiverTask(Reader reader,
 			IRepaintController repaintController,
@@ -31,37 +31,37 @@ public class CMasterReceiverTask extends ReceiverTask {
 			ProtocolContext context) {
 		super(reader, repaintController, clipboardController, sessionManager, decoders,
 				context);
-		state = 0;
-		time=0;
-		tester = new CVNCServerTester(reader, repaintController, clipboardController, sessionManager, decoders, context);
+		m_eState 	= EReceiverState.TEST_RECEIVERTASK;
+		m_stTester 	= new CVNCServerTester(reader, repaintController, clipboardController, sessionManager, decoders, context);
 	}
 
-	/* (non-Javadoc)
-	 * @see com.glavsoft.rfb.protocol.ReceiverTask#run()
+	/**
+	 * new run()-method
 	 */
 	@Override
 	public void run() {
-		if(state==0){
+		if (m_eState == EReceiverState.TEST_RECEIVERTASK) {
 			
 			// User must show a static image
 			JOptionPane.showMessageDialog(null, "Please make sure to show a static screencontent on your device.", "Initialize device", 1);
 
-			tester.run();
+			
+			m_stTester.run();
 
-			CLogger.getInst(CLogger.SYS_OUT).writeline("tester.getEqualRatio() = " + tester.getEqualRatio());
-			if(tester.getEqualRatio()>0.0){
-				state=1;
-			}else{
-				state=2;
+			CLogger.getInst(CLogger.SYS_OUT).writeline("tester.getEqualRatio() = " + m_stTester.getEqualRatio());
+			if(m_stTester.getEqualRatio() > m_dEpsilon){
+				m_eState = EReceiverState.FILTERED_RECEIVERTASK;
+			} else {
+				m_eState = EReceiverState.DEFAULT_RECEIVERTASK;
 			}
-			CLogger.getInst(CLogger.SYS_OUT).writeline("State = " + state);
+			CLogger.getInst(CLogger.SYS_OUT).writeline("State = " + m_eState);
 
 		}
-		if(state==1){
-			if (filter == null)
-				filter = new CVNCServerFilter(reader, repaintController, clipboardController, sessionManager, decoders, context);
-			filter.run();
-		}else if(state==2){
+		if (m_eState == EReceiverState.FILTERED_RECEIVERTASK) {
+			if (m_sfFilter == null)
+				m_sfFilter = new CVNCServerFilter(reader, repaintController, clipboardController, sessionManager, decoders, context);
+			m_sfFilter.run();
+		} else if (m_eState == EReceiverState.DEFAULT_RECEIVERTASK) {
 			super.run();
 		}
 	}

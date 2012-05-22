@@ -78,12 +78,14 @@ public class CVNCServerTester extends ReceiverTask {
 	 */
 	@Override
 	public void run() {
-		long time = System.currentTimeMillis();
+		long lTime = System.currentTimeMillis();
 		isRunning = true;
 		while (isRunning) {
-			if((System.currentTimeMillis()-time)>5000){
+			// Testmethod run 5 seconds
+			if((System.currentTimeMillis() - lTime) > 5000){
 				isRunning = false;
 			}
+			
 			try {
 				byte messageId = reader.readByte();
 				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::run(): messageId " + messageId);
@@ -198,22 +200,6 @@ public class CVNCServerTester extends ReceiverTask {
 				}
 				else {
 					CInputRecorder.getInst().processImageCompare(renderer);
-				}
-					
-				
-				CLogger.getInst(CLogger.SYS_OUT).writeline("m_isDifferent = " + m_isDifferent);
-				if (m_isDifferent) {
-					// Successful comparison --> Check for Differences
-					if (CInputRecorder.getInst().getImageCmp() != null) {
-						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
-							CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
-							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
-							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
-						}
-						
-					}
-							
-//					CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
 				}
 				
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);

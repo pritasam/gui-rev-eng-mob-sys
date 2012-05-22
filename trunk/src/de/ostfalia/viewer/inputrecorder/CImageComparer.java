@@ -76,7 +76,7 @@ public class CImageComparer {
 		int nMin_x 			= Integer.MAX_VALUE;
 		int nMin_y 			= Integer.MAX_VALUE;
 		boolean isDifferent	= false;
-		m_deltaRegion		= null;
+		//m_deltaRegion		= null;
 		
 		// Check, if image-dimensions are the same
 		if ((this.m_biMasterImageDouble.getHeight() == biCurrentImage.getHeight()) &&
@@ -127,7 +127,7 @@ public class CImageComparer {
 	 */
 	public void saveAsPicFiles() {
 		if (!m_isSaved && !m_isLocked) {
-			saveMasterAsPicFile();
+//			saveMasterAsPicFile();
 			saveCurrentAsPicFile();
 			m_isSaved = true;
 			m_isLocked = true;
@@ -139,7 +139,7 @@ public class CImageComparer {
 	/**
 	 * Saves the masterpic as file
 	 */
-	private void saveMasterAsPicFile() {
+	public void saveMasterAsPicFile() {
 		try {
 		    // retrieve image
 		    File outputfile = new File("Screenshots" + File.separator + "scr_" + m_lTimestamp + "_Master.png");
@@ -152,7 +152,7 @@ public class CImageComparer {
 	/**
 	 * Saves the currentpic as file
 	 */
-	private void saveCurrentAsPicFile() {
+	public void saveCurrentAsPicFile() {
 		try {
 		    // retrieve image
 		    File outputfile = new File("Screenshots" + File.separator + "scr_" + m_lTimestamp + "_Current.png");

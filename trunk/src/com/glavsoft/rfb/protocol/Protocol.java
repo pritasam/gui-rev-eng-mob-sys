@@ -26,8 +26,6 @@ package com.glavsoft.rfb.protocol;
 
 import java.util.logging.Logger;
 
-import javax.swing.text.html.HTMLDocument.HTMLReader.IsindexAction;
-
 import com.glavsoft.exceptions.AuthenticationFailedException;
 import com.glavsoft.exceptions.FatalException;
 import com.glavsoft.exceptions.TransportException;
@@ -40,7 +38,6 @@ import com.glavsoft.rfb.IRepaintController;
 import com.glavsoft.rfb.ISessionController;
 import com.glavsoft.rfb.client.ClientToServerMessage;
 import com.glavsoft.rfb.client.FramebufferUpdateRequestMessage;
-import com.glavsoft.rfb.client.PointerEventMessage;
 import com.glavsoft.rfb.client.SetEncodingsMessage;
 import com.glavsoft.rfb.client.SetPixelFormatMessage;
 import com.glavsoft.rfb.encoding.PixelFormat;
@@ -219,6 +216,13 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 		 * O. laudi End
 		 */
 		new Thread(receiverTask).start();
+	}
+
+	/**
+	 * @return the receiverTask
+	 */
+	public ReceiverTask getReceiverTask() {
+		return receiverTask;
 	}
 
 	public synchronized void stopTasks() {

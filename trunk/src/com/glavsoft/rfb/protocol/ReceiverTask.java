@@ -24,16 +24,9 @@
 
 package com.glavsoft.rfb.protocol;
 
-import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.Date;
 import java.util.logging.Logger;
-
-import javax.imageio.ImageIO;
 
 import com.glavsoft.drawing.Renderer;
 import com.glavsoft.exceptions.CommonException;
@@ -270,41 +263,30 @@ public class ReceiverTask implements Runnable {
 				 * O. laudi
 				 * after full bufferrefresh check, if compare is needed and check for differences
 				 */
-				if (CInputRecorder.getInst().isEventMessage() && m_isSaved) {
-					// if Pointer- or KeyEventMessage, then save time
-					m_lTime = System.currentTimeMillis();
-					m_isSaved = false;
-					CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isEventMessage()");
-				}
 				
-				if (!m_isSaved) {
-					m_isSaved = true;
-					CInputRecorder.getInst().processImageCompare(renderer);
-					CInputRecorder.getInst().resetEventMessage();
-					// Equal pics found
-					CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): Timeout after 2 seconds!");
-					CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
-//					CInputRecorder.getInst().getImageCmp().saveCurrentAsPicFile();
-					// get deltaimage
-					if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
-						CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): save different " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
-						CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+				if (CInputRecorder.getInst().isRecord()) {
+					if (CInputRecorder.getInst().isEventMessage() && m_isSaved) {
+						// if Pointer- or KeyEventMessage, then save time
+						m_lTime = System.currentTimeMillis();
+						m_isSaved = false;
+						CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isEventMessage()");
+					}
+					
+					if (!m_isSaved) {
+						m_isSaved = true;
+						CInputRecorder.getInst().processImageCompare(renderer);
+						CInputRecorder.getInst().resetEventMessage();
+						// Equal pics found
+						CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): Timeout after 2 seconds!");
+						CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
+						// get deltaimage
+						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+							CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): save different " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+//							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+						}
 					}
 				}
-				
-				
-//				if (CInputRecorder.getInst().processImageCompare(renderer)) {
-//					// Successful comparison --> Check for Differences
-//					if (CInputRecorder.getInst().getImageCmp() != null) {
-//						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
-//							CInputRecorder.getInst().getImageCmp().saveCurrentAsPicFile();
-//							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
-//							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
-//						}
-//					}
-//							
-////							CLogger.getInst(CLogger.SYS_OUT).writeline(CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
-//				}
+
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);
 				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): sendMessage " + fullscreenFbUpdateIncrementalRequest.toString());
 			}

@@ -54,6 +54,7 @@ public class CMasterReceiverTask extends ReceiverTask {
 			} else {
 				m_eState = EReceiverState.DEFAULT_RECEIVERTASK;
 			}
+			JOptionPane.showMessageDialog(null, "State " + m_eState + " was detected.", "Initialization complete!", 1);
 			CLogger.getInst(CLogger.SYS_OUT).writeline("State = " + m_eState);
 
 		}
@@ -62,10 +63,12 @@ public class CMasterReceiverTask extends ReceiverTask {
 				m_sfFilter = new CVNCServerFilter(reader, repaintController, clipboardController, sessionManager, decoders, context);
 			m_sfFilter.run();
 		} else if (m_eState == EReceiverState.DEFAULT_RECEIVERTASK) {
-			super.run();
+			///TODO : Warum geht Filter, aber normal nicht???
+//			super.run();
+			if (m_sfFilter == null)
+				m_sfFilter = new CVNCServerFilter(reader, repaintController, clipboardController, sessionManager, decoders, context);
+			m_sfFilter.run();
 		}
 	}
-	
-	
 
 }

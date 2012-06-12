@@ -18,7 +18,8 @@ import javax.imageio.ImageIO;
 public class CImageComparer {
 	protected CImageDelta	m_deltaRegion;
 	protected BufferedImage	m_biMasterImage;
-	protected BufferedImage	m_biMasterImageDouble;
+//	protected BufferedImage	m_biMasterImageDouble;
+	protected BufferedImage	m_biCurrent;
 	protected boolean		m_isSaved;
 	protected boolean		m_isLocked;
 	protected boolean		m_isDifferentFromMaster;
@@ -31,7 +32,7 @@ public class CImageComparer {
 	public CImageComparer(BufferedImage	biMasterImage, long lTimestamp) {
 		m_deltaRegion 			= null;
 		m_biMasterImage			= copyBufferedImage(biMasterImage);
-		m_biMasterImageDouble	= copyBufferedImage(biMasterImage);
+//		m_biMasterImageDouble	= copyBufferedImage(biMasterImage);
 		m_isSaved				= false;
 		m_isLocked				= false;
 		m_isDifferentFromMaster	= false;
@@ -60,7 +61,7 @@ public class CImageComparer {
 		m_isLocked					= false;
 		m_isDifferentFromMaster		= false;
 		this.m_biMasterImage 		= copyBufferedImage(biMasterImage);
-		this.m_biMasterImageDouble	= copyBufferedImage(biMasterImage);
+//		this.m_biMasterImageDouble	= copyBufferedImage(biMasterImage);
 	}
 	
 	/**
@@ -77,14 +78,15 @@ public class CImageComparer {
 		int nMin_y 			= Integer.MAX_VALUE;
 		boolean isDifferent	= false;
 		//m_deltaRegion		= null;
+		m_biCurrent = biCurrentImage;
 		
 		// Check, if image-dimensions are the same
-		if ((this.m_biMasterImageDouble.getHeight() == biCurrentImage.getHeight()) &&
-				(this.m_biMasterImageDouble.getWidth() == biCurrentImage.getWidth())) {
-			for (int j = 0; j < this.m_biMasterImageDouble.getHeight(); j++) {
-				for (int i = 0; i < this.m_biMasterImageDouble.getWidth(); i++) {			       	
+		if ((this.m_biMasterImage.getHeight() == m_biCurrent.getHeight()) &&
+				(this.m_biMasterImage.getWidth() == m_biCurrent.getWidth())) {
+			for (int j = 0; j < this.m_biMasterImage.getHeight(); j++) {
+				for (int i = 0; i < this.m_biMasterImage.getWidth(); i++) {			       	
 					try {
-						if (this.m_biMasterImageDouble.getRGB(i, j) != biCurrentImage.getRGB(i, j))
+						if (this.m_biMasterImage.getRGB(i, j) != m_biCurrent.getRGB(i, j))
 						{
 							isDifferent = true;
 							if (i > nMax_x)
@@ -110,8 +112,8 @@ public class CImageComparer {
 				nMax_x++;
 				nMax_y++;
 				m_deltaRegion = new CImageDelta(nMin_x, nMin_y, nMax_x - nMin_x, nMax_y - nMin_y);
-				m_deltaRegion.setDeltaImage(this.m_biMasterImageDouble.getSubimage(nMin_x, nMin_y, nMax_x - nMin_x, nMax_y - nMin_y));
-				m_biMasterImageDouble = copyBufferedImage(biCurrentImage);
+				m_deltaRegion.setDeltaImage(m_biCurrent.getSubimage(nMin_x, nMin_y, nMax_x - nMin_x, nMax_y - nMin_y));
+//				m_biMasterImageDouble = copyBufferedImage(biCurrentImage);
 			}
 			
 			// if last frame repeat and differs from master then save
@@ -131,7 +133,7 @@ public class CImageComparer {
 			saveCurrentAsPicFile();
 			m_isSaved = true;
 			m_isLocked = true;
-			this.m_biMasterImage = copyBufferedImage(this.m_biMasterImageDouble);
+			//this.m_biMasterImage = copyBufferedImage(this.m_biMasterImageDouble);
 			m_isDifferentFromMaster = false;
 		}
 	}
@@ -156,7 +158,7 @@ public class CImageComparer {
 		try {
 		    // retrieve image
 		    File outputfile = new File("Screenshots" + File.separator + "scr_" + m_lTimestamp + "_Current.png");
-		    ImageIO.write(this.m_biMasterImageDouble, "png", outputfile);
+		    ImageIO.write(m_biCurrent, "png", outputfile);
 		} catch (IOException e) {
 		    e.printStackTrace();
 		}

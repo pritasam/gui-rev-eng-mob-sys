@@ -5,7 +5,6 @@ package de.ostfalia.viewer.gui.extension;
 
 import java.awt.Container;
 
-import com.glavsoft.rfb.protocol.Protocol;
 import com.glavsoft.rfb.protocol.ProtocolContext;
 
 /**

@@ -28,6 +28,7 @@ public class CInputRecorder{
 	private byte					m_lastButtonMask;
 	private boolean					m_isFirstImgSaved;
 	private boolean					m_isEventMessage;
+	private boolean					m_isRecord;
 	
 	/**
 	 * Constructor
@@ -37,6 +38,7 @@ public class CInputRecorder{
 		m_imageCmp 			= null;
 		m_isFirstImgSaved 	= false;
 		m_isEventMessage	= false;
+		m_isRecord			= false;
 	}
 	
 	/**
@@ -79,35 +81,53 @@ public class CInputRecorder{
 	}
 
 	/**
+	 * @return the m_isRecord
+	 */
+	public boolean isRecord() {
+		return m_isRecord;
+	}
+
+	/**
+	 * @param toggle the value of isRecord 
+	 */
+	public void setToggleRecord() {
+		this.m_isRecord = !this.m_isRecord;
+	}
+
+	/**
 	 * Handels the extended behavior to the SendMessage-method in the Protocol-class
 	 * @param message
 	 * @param receiverTask
 	 */
 	public void processMessage(ClientToServerMessage message, ReceiverTask receiverTask) {
-		Long lTimeStamp = System.currentTimeMillis();
-		
-		if (message instanceof PointerEventMessage) {}
-		else {
-			CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
-		}
-		
-		if (message instanceof PointerEventMessage) {
-			// Click
-			if ((1 == ((PointerEventMessage) message).getButtonMask()) && (m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+		if (this.m_isRecord) {
+			Long lTimeStamp = System.currentTimeMillis();
+			
+			if (message instanceof PointerEventMessage) {}
+			else {
 				CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
+			}
+			
+			if (message instanceof PointerEventMessage) {
+				// Click
+				if ((1 == ((PointerEventMessage) message).getButtonMask()) && (m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+//					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+					
+					CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
+					prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+//					m_imageCmp.saveMasterAsPicFile();
+					this.m_isEventMessage = true;
+//					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+				}
+				
+				m_lastButtonMask = ((PointerEventMessage) message).getButtonMask();
+			}
+			else if (message instanceof KeyEventMessage) {
 				prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
 //				m_imageCmp.saveMasterAsPicFile();
 				this.m_isEventMessage = true;
 //				saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 			}
-			
-			m_lastButtonMask = ((PointerEventMessage) message).getButtonMask();
-		}
-		else if (message instanceof KeyEventMessage) {
-			prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
-//			m_imageCmp.saveMasterAsPicFile();
-			this.m_isEventMessage = true;
-//			saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 		}
 	}
 	
@@ -133,11 +153,11 @@ public class CInputRecorder{
 		BufferedImage image = new BufferedImage(renderer.getWidth(), renderer.getHeight(), BufferedImage.TYPE_INT_RGB);
 		image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
 		
-		CLogger.getInst(CLogger.FILE).writeline("InputRecorder::saveScreenshot: scr_" + lTimestamp + ".png");
+		CLogger.getInst(CLogger.FILE).writeline("InputRecorder::saveScreenshot: scr_" + lTimestamp + "_Current.png");
 		
 		try {
 		    // retrieve image
-		    File outputfile = new File("Screenshots" + File.separator + "scr_" + lTimestamp + ".png");
+		    File outputfile = new File("Screenshots" + File.separator + "scr_" + lTimestamp + "_Current.png");
 		    ImageIO.write(image, "png", outputfile);
 		} catch (IOException e) {
 		    e.printStackTrace();

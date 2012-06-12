@@ -88,7 +88,6 @@ import com.glavsoft.viewer.swing.gui.OptionsDialog;
 import com.glavsoft.viewer.swing.gui.PasswordDialog;
 
 import de.ostfalia.viewer.inputrecorder.CInputRecorder;
-import de.ostfalia.viewer.logger.CLogger;
 
 @SuppressWarnings("serial")
 public class Viewer extends JApplet implements Runnable, ISessionController, WindowListener, IChangeSettingsListener {
@@ -570,16 +569,20 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 		
 		buttonBar.add(Box.createHorizontalStrut(10));
 		
-		JButton androidScreenshot = new JButton(Utils.getButtonIcon("screenshot"));
-		androidScreenshot.setToolTipText("Rotate");
-		androidScreenshot.setMargin(buttonsMargin);
-		androidScreenshot.setAlignmentX(RIGHT_ALIGNMENT);
-		buttonBar.add(androidScreenshot);
-		androidScreenshot.addActionListener(new ActionListener() {
+		JToggleButton androidRecord = new JToggleButton(Utils.getButtonIcon("record"));
+		androidRecord.setToolTipText("Record Inputsequence");
+		androidRecord.setSelectedIcon(Utils.getButtonIcon("record-stop"));
+		androidRecord.setMargin(buttonsMargin);
+		androidRecord.setAlignmentX(RIGHT_ALIGNMENT);
+		buttonBar.add(androidRecord);
+		androidRecord.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// Neues Messageevent für Input buttons
-				//CInputRecorder.getInst().saveScreenshot(, System.currentTimeMillis());
+				// Start or stop record of inputsequences
+				CInputRecorder.getInst().setToggleRecord();
+				if (CInputRecorder.getInst().isRecord()) {
+					CInputRecorder.getInst().saveScreenshot(workingProtocol.getReceiverTask().getRenderer(), System.currentTimeMillis());
+				}
 			}
 		});
 		

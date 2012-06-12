@@ -7,13 +7,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import javax.print.attribute.standard.DateTimeAtCompleted;
-
-import de.ostfalia.viewer.inputrecorder.CInputRecorder;
 
 /**
  * @author O.Laudi

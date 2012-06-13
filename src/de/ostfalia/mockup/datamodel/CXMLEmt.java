@@ -73,7 +73,7 @@ public class CXMLEmt {
 		try {
 			outputFile.createNewFile();
 			bw = new BufferedWriter(new FileWriter(outputFile), 1024);
-			strWritebuffer += getXMLTree(this, 0);
+			strWritebuffer += this.getXMLTree(0);
 			
 			bw.write(strWritebuffer);
 			bw.newLine();
@@ -92,34 +92,35 @@ public class CXMLEmt {
 	 * @param xmlEmt
 	 * @return
 	 */
-	private String getXMLTree(CXMLEmt xmlEmt, int nIterationDepth) {
+	private String getXMLTree(int nIterationDepth) {
 		String strSpace = "";
 		String strResult = "";
 		
 		for (int i = 0; i < nIterationDepth; i++)
 			strSpace += m_XMLSPACE;
 		
-		if (xmlEmt.m_lstChildren.size() > 0) {
+		if (this.m_lstChildren.size() > 0) {
 			// <name atrb1>
 			//   <child/>
 			// </name>
 			// opentag + attribs
-			strResult = strSpace + "<" + xmlEmt.m_strTagName;
+			strResult = strSpace + "<" + this.m_strTagName;
 			for (String strKey : m_hmAttribMap.keySet()) {
 				strResult += " " + strKey + "=\""+ m_hmAttribMap.get(strKey) + "\"";
 			}
 			strResult += ">\n";
 			
 			// all childnodes
+			nIterationDepth++;
 			for(CXMLEmt emt : m_lstChildren) {
-				strResult += getXMLTree(emt, ++nIterationDepth);
+				strResult += emt.getXMLTree(nIterationDepth);
 			}
 			
 			// endtag
-			strResult = strSpace + "</" + xmlEmt.m_strTagName + ">\n";
+			strResult += strSpace + "</" + this.m_strTagName + ">\n";
 		} else {
 			// one tag <name atrb1/>
-			strResult = strSpace + "<" + xmlEmt.m_strTagName;
+			strResult = strSpace + "<" + this.m_strTagName;
 			for (String strKey : m_hmAttribMap.keySet()) {
 				strResult += " " + strKey + "=\""+ m_hmAttribMap.get(strKey) + "\"";
 			}

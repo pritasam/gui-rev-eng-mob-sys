@@ -3,28 +3,27 @@
  */
 package de.ostfalia.mockup.datamodel.mock;
 
-import de.ostfalia.mockup.datamodel.CXMLEmt;
-
 /**
  * @author O. Laudi
  *
  */
-public class CMockOverlayView extends CXMLEmt {
+public class CMockOverlayView extends CMockView {
 
 	/**
 	 * 
 	 * @param strID
 	 * @param strImage
 	 * @param strOver
+	 * @param isImageFullSize
+	 * @param isLandscape
 	 */
-	public CMockOverlayView(String strID, String strImage, String strOver) {
-		super("state");
+	public CMockOverlayView(String strID, String strImage, String strOver, boolean isImageFullSize, boolean isLandscape) {
+		super(strID, strImage, isLandscape);
 
 		// Add attribs
 		this.addAttrib("xsi:type", "mock:OverlayView");
-		this.addAttrib("ID", strID);
-		this.addAttrib("image", strImage);
-		this.addAttrib("over", strOver);
+		this.addAttrib("imageIsFullSize", isImageFullSize?"true":"false");
+		this.addAttrib("over", "#" + strOver);
 	}
 
 }

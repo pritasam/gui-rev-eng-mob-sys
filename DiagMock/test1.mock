@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="ASCII"?>
+<mock:DocumentRoot xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mock="http://de.jweimar.mockup/Mock">
+   <mock:Application nextRegionID="3" name="test1">
+      <state startview="#Intro" ID="_Start" xsi:type="mock:Start">
+         <transition target="#Intro" ID="Start123" xsi:type="mock:StartLink"/>
+      </state>
+      <state Landscape="false" ID="Intro" image="images/Master1.png" xsi:type="mock:FullView">
+         <transition target="#_End" ID="KeyID123" xsi:type="mock:KeyLink" key="HOME"/>
+      </state>
+      <state Landscape="false" ID="Targetview" image="images/Master2.png" xsi:type="mock:FullView"/>
+      <state over="#Targetview" Landscape="false" ID="OverLayView" image="images/Master3.png" imageIsFullSize="true" xsi:type="mock:OverlayView"/>
+      <state ID="_End" xsi:type="mock:End"/>
+   </mock:Application>
+</mock:DocumentRoot>
+

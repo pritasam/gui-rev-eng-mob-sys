@@ -87,6 +87,7 @@ import com.glavsoft.viewer.swing.gui.ConnectionDialog;
 import com.glavsoft.viewer.swing.gui.OptionsDialog;
 import com.glavsoft.viewer.swing.gui.PasswordDialog;
 
+import de.ostfalia.mockup.generator.CMockupGenerator;
 import de.ostfalia.viewer.inputrecorder.CInputRecorder;
 
 @SuppressWarnings("serial")
@@ -582,6 +583,12 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 				CInputRecorder.getInst().setToggleRecord();
 				if (CInputRecorder.getInst().isRecord()) {
 					CInputRecorder.getInst().saveScreenshot(workingProtocol.getReceiverTask().getRenderer(), System.currentTimeMillis());
+				} else {
+					// Button released
+					String strName = JOptionPane.showInputDialog(null, "Enter the name of the diagram : ", 
+							"Mockupgenerator", 1);
+					CMockupGenerator mockgen = new CMockupGenerator(strName);
+					mockgen.testMockModel();
 				}
 			}
 		});

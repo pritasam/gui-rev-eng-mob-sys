@@ -3,13 +3,11 @@
  */
 package de.ostfalia.mockup.datamodel.mock;
 
-import de.ostfalia.mockup.datamodel.CXMLEmt;
-
 /**
  * @author O. Laudi
  *
  */
-public class CMockStart extends CXMLEmt {
+public class CMockStart extends CMockState {
 
 	/**
 	 * 
@@ -17,12 +15,11 @@ public class CMockStart extends CXMLEmt {
 	 * @param strStartview
 	 */
 	public CMockStart(String strID, String strStartview) {
-		super("state");
+		super(strID);
 
 		// Add attribs
 		this.addAttrib("xsi:type", "mock:Start");
-		this.addAttrib("ID", strID);
-		this.addAttrib("startview", strStartview);
+		this.addAttrib("startview", "#" + strStartview);
 	}
 
 }

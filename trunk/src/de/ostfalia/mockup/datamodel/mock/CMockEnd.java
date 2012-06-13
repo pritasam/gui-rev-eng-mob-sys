@@ -3,24 +3,21 @@
  */
 package de.ostfalia.mockup.datamodel.mock;
 
-import de.ostfalia.mockup.datamodel.CXMLEmt;
-
 /**
  * @author O. Laudi
  *
  */
-public class CMockEnd extends CXMLEmt {
+public class CMockEnd extends CMockState {
 
 	/**
 	 * 
 	 * @param strID
 	 */
 	public CMockEnd(String strID) {
-		super("state");
+		super(strID);
 
 		// Add attribs
 		this.addAttrib("xsi:type", "mock:End");
-		this.addAttrib("ID", strID);
 	}
 
 }

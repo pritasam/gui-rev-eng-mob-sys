@@ -34,7 +34,7 @@ public class CMockupGenerator {
 	/**
 	 * Testmethod to test the mock-model-generator
 	 */
-	public void testMockModel() {
+	public boolean testMockModel() {
 		m_mockTree = new CMockDocumentRoot();
 		CMockApplication mockApp = new CMockApplication(m_strDiagramName, 3);
 		CMockStart mockStart = new CMockStart("_Start", "Intro");
@@ -47,6 +47,6 @@ public class CMockupGenerator {
 		mockApp.addChildNode(new CMockOverlayView("OverLayView", "images/Master3.png", "Targetview", true, false));
 		mockApp.addChildNode(new CMockEnd("_End"));
 		m_mockTree.addChildNode(mockApp);
-		m_mockTree.saveToFile(new File("DiagMock" + File.separator + m_strDiagramName + ".mock"));
+		return m_mockTree.saveToFile(m_strDiagramName);
 	}
 }

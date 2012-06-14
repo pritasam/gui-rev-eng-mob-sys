@@ -3,8 +3,6 @@
  */
 package de.ostfalia.mockup.datamodel.mock;
 
-import de.ostfalia.mockup.datamodel.CXMLEmt;
-
 /**
  * @author O. Laudi
  *

@@ -588,7 +588,11 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 					String strName = JOptionPane.showInputDialog(null, "Enter the name of the diagram : ", 
 							"Mockupgenerator", 1);
 					CMockupGenerator mockgen = new CMockupGenerator(strName);
-					mockgen.testMockModel();
+					
+					if (mockgen.testMockModel())
+						JOptionPane.showMessageDialog(null, "Diagramfiles successfully generated.", "Mockupgenerator", 1); 
+					else
+						JOptionPane.showMessageDialog(null, "Errors occurred during generation of diagramfiles.", "Mockupgenerator", 1); 
 				}
 			}
 		});

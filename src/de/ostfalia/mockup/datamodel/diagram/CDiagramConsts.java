@@ -8,5 +8,6 @@ package de.ostfalia.mockup.datamodel.diagram;
  *
  */
 public class CDiagramConsts {
-	public static final double	ASPECT_RATIO = 4/3;
+	public static final int	ASPECT_RATIO_X = 4;
+	public static final int	ASPECT_RATIO_Y = 3;
 }

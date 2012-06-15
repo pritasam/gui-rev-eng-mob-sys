@@ -125,7 +125,8 @@ public class CXMLEmt {
 	 */
 	private boolean saveDiagramFile(File fDiagramFile) {
 		boolean			isSuccess 		= true;
-		int				nCmtViews		= getCountViews(this);
+		int				nCntViews		= getCountViews(this);
+		Point			ptViewPosition	= null;
 		BufferedWriter	bw;
 		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n";
 		
@@ -133,6 +134,7 @@ public class CXMLEmt {
 			fDiagramFile.createNewFile();
 			bw = new BufferedWriter(new FileWriter(fDiagramFile), 1024);
 			//strWritebuffer += this.getXMLTree(0);
+			ptViewPosition	= getPositionOfView(1, nCntViews);
 			
 			bw.write(strWritebuffer);
 			bw.newLine();
@@ -210,9 +212,29 @@ public class CXMLEmt {
 		return nCntViews;
 	}
 	
+	/**
+	 * gets the gridposition of a view in a set of many views
+	 * 
+	 * 0 1 2 3 x
+	 * 1
+	 * 2
+	 * y
+	 * 
+	 * @param nCurrentView
+	 * @param nViewcount
+	 * @return
+	 */
+	private Point getPositionOfView(int nCurrentView, int nViewcount) {
+		int nRatioSum = CDiagramConsts.ASPECT_RATIO_X + CDiagramConsts.ASPECT_RATIO_Y;
+		
+		// get max x and max y number of views
+		int nMaxX = (int)((Math.sqrt(Integer.valueOf(nViewcount)) * (2.0 / nRatioSum * CDiagramConsts.ASPECT_RATIO_X)) + 0.5);
+		//int nMaxY = (int)((Math.sqrt(Integer.valueOf(nViewcount)) * (2.0 / nRatioSum * CDiagramConsts.ASPECT_RATIO_Y)) + 0.5);
 	
-//	private Point getPositionOfView(int nCurrentView, int nViewcount) {
-//		
-//		return new Point(x, y);
-//	}
+		// get exact position of nCurrentView
+		int nX = nCurrentView % nMaxX;
+		int nY = (int)(nCurrentView / nMaxX);
+		
+		return new Point(nX, nY);
+	}
 }

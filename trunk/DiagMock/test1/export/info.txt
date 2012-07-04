@@ -1,0 +1,3 @@
+Project: test1
+Preview: test1/export/preview.jpg
+Mock: /test1.mocks/test1.mock

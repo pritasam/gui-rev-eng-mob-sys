@@ -47,6 +47,6 @@ public class CMockupGenerator {
 		mockApp.addChildNode(new CMockOverlayView("OverLayView", "images/Master3.png", "Targetview", true, false));
 		mockApp.addChildNode(new CMockEnd("_End"));
 		m_mockTree.addChildNode(mockApp);
-		return m_mockTree.saveToFile(m_strDiagramName);
+		return m_mockTree.saveToMockjarFile(m_strDiagramName);
 	}
 }

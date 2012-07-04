@@ -3,12 +3,20 @@
  */
 package de.ostfalia.mockup.datamodel;
 
+import java.awt.Color;
+import java.awt.Font;
+import java.awt.Graphics2D;
+import java.awt.Image;
 import java.awt.Point;
+import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+
+import javax.imageio.ImageIO;
+import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 
 import de.ostfalia.mockup.datamodel.diagram.CDiagramConsts;
 import de.ostfalia.mockup.datamodel.mock.CMockDocumentRoot;
@@ -84,10 +92,55 @@ public class CXMLEmt {
 	 * @param strDiagramName
 	 * @return
 	 */
-	public boolean saveToFile(String strDiagramName) {
-		boolean	isSuccess 	= saveMockFile(new File("DiagMock" + File.separator + strDiagramName + ".mock"));
+	public boolean saveToMockjarFile(String strDiagramName) {
+		// gen Mock-file
+		boolean	isSuccess	= new File("DiagMock" + File.separator + 
+											strDiagramName + File.separator + 
+												"diagrams").mkdirs();
+		
 		if (isSuccess)
-			saveDiagramFile(new File("DiagMock" + File.separator + strDiagramName + ".diagram"));
+			isSuccess = saveMockFile(new File("DiagMock" + File.separator + 
+												strDiagramName + File.separator + 
+													"diagrams" + File.separator +
+														strDiagramName + ".mock"));
+		
+		// gen Diagram-File
+		if (isSuccess) {
+			isSuccess = saveDiagramFile(new File("DiagMock" + File.separator +
+													strDiagramName + File.separator + 
+														"diagrams" + File.separator +
+															strDiagramName + ".diagram"));
+		}
+			
+		
+		// gen Info-File
+		if (isSuccess) {
+			isSuccess	= new File("DiagMock" + File.separator +
+										strDiagramName + File.separator + 
+											"export").mkdirs();
+			
+			if (isSuccess)
+				isSuccess = saveInfoFile(new File("DiagMock" + File.separator +
+													strDiagramName + File.separator + 
+														"export" + File.separator +
+															"info.txt"), strDiagramName);
+		}
+		
+		// gen preview-file
+		if (isSuccess) {
+			isSuccess = savePreviewFile(new File("DiagMock" + File.separator +
+													strDiagramName + File.separator + 
+														"export" + File.separator +
+															"preview.jpg"), strDiagramName);
+		}
+		
+		// copy mockup-pictures to folder "images"
+		if (isSuccess) {
+			isSuccess	= new File("DiagMock" + File.separator +
+										strDiagramName + File.separator + 
+											"images").mkdirs();
+			
+		}
 		
 		return isSuccess;
 	}
@@ -143,6 +196,60 @@ public class CXMLEmt {
 			isSuccess = false;
 			e.printStackTrace();
 		}
+		
+		return isSuccess;
+	}
+	
+	/**
+	 * generates the Info.txt
+	 * @param fInfoFile
+	 * @param strMockupName
+	 * @return
+	 */
+	private boolean saveInfoFile(File fInfoFile, String strMockupName) {
+		boolean			isSuccess 		= true;
+		BufferedWriter	bw;
+		String			strWritebuffer 	= "Project: " + strMockupName + "\n";
+		
+		try {
+			fInfoFile.createNewFile();
+			bw = new BufferedWriter(new FileWriter(fInfoFile), 1024);
+			strWritebuffer += "Preview: " + strMockupName + "/export/preview.jpg\n";
+			strWritebuffer += "Mock: /" + strMockupName + ".mocks/" + strMockupName + ".mock\n";
+			
+			bw.write(strWritebuffer);
+			bw.newLine();
+			bw.flush();
+		} catch (IOException e) {
+			isSuccess = false;
+			e.printStackTrace();
+		}
+		
+		return isSuccess;
+	}
+	
+	/**
+	 * saves a preview.jpg which contains the Mockup-name
+	 * @param fPrevFile
+	 * @param strMockupName
+	 * @return
+	 */
+	private boolean savePreviewFile(File fPrevFile, String strMockupName) {
+		boolean			isSuccess 		= true;
+		BufferedImage	biPreview		= new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
+		Graphics2D		g				= biPreview.createGraphics();
+		
+		g.setBackground(Color.LIGHT_GRAY);
+		//g.setColor(Color.BLACK);
+		g.setFont(new Font("Arial", Font.BOLD, 96));
+		g.drawString(strMockupName, 15, 480 / 2);
+		
+		try {
+			isSuccess = ImageIO.write(biPreview, "jpg", fPrevFile);
+	    }
+	    catch (IOException e) {
+	    	e.printStackTrace();
+	    }
 		
 		return isSuccess;
 	}

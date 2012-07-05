@@ -11,9 +11,14 @@ import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
@@ -139,7 +144,13 @@ public class CXMLEmt {
 			isSuccess	= new File("DiagMock" + File.separator +
 										strDiagramName + File.separator + 
 											"images").mkdirs();
-			
+		
+			//TODO: create copyImages-method
+		}
+		
+		// create mockjar-file
+		if (isSuccess) {
+			isSuccess = createMockjarFile("DiagMock" + File.separator + strDiagramName, strDiagramName);
 		}
 		
 		return isSuccess;
@@ -252,6 +263,100 @@ public class CXMLEmt {
 	    }
 		
 		return isSuccess;
+	}
+	
+	/**
+	 * copies all neccessary image-file for the Mockup-diagram 
+	 * to the image-folder
+	 * @return
+	 */
+	private boolean copyImages() {
+		boolean			isSuccess 	= true;
+		
+		return isSuccess;
+	}
+	
+	/**
+	 * creates a zip-file of all neccessary mockup-files and
+	 * renames it to "mockjar"
+	 * @param strFolderToFiles
+	 * @param strMockUpName
+	 * @return
+	 */
+	private boolean createMockjarFile(String strFolderToFiles, String strMockUpName) {
+		boolean			isSuccess 	= true;
+		ZipOutputStream	zipOut		= null;
+		
+		try {
+			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".zip"));
+		} catch (FileNotFoundException e) {
+			isSuccess = false;
+			e.printStackTrace();
+		}
+		finally
+		{
+			try
+			{
+				// recursive method to iterate mockup-folder
+				iterateMockupFolder(new File(strFolderToFiles), zipOut, 
+						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
+				
+				// rename generated zipfile to mockjar
+				File zipFile = new File(strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length() - 1), 
+						strMockUpName + ".zip");
+				isSuccess = zipFile.renameTo(new File(strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length() - 1), 
+						strMockUpName + ".mockjar"));
+				
+				if (zipOut != null)
+					zipOut.close();
+			}
+			catch(Exception ex)
+			{
+				isSuccess = false;
+			}
+		}
+		
+		return isSuccess;
+	}
+	
+	/**
+	 * recursive methode to iterate over a folderToFiles and create
+	 * a zip-file including subfolders
+	 * @param folderToFiles
+	 * @param zipOut
+	 * @param strRootFolder
+	 */
+	private void iterateMockupFolder(File folderToFiles, ZipOutputStream zipOut, String strRootFolder) {
+		File[] files = folderToFiles.listFiles();
+		
+		if (files != null) {
+			for (int i = 0; i < files.length; i++) {
+				if (files[i].isDirectory()) {
+					// recursive call with subfolder
+					iterateMockupFolder(files[i], zipOut, strRootFolder);
+					
+					}
+				else {
+					// add file to archiv
+					try {
+						String strPath			= files[i].getPath(); //.substring(strRootFolder.length());
+						FileInputStream inFile 	= new FileInputStream(strPath);
+						zipOut.putNextEntry(new ZipEntry(strPath.substring(strRootFolder.length())));
+						byte[] buffer = new byte[4096];
+						int nLen;
+						
+						while ((nLen = inFile.read(buffer)) > 0) {
+							zipOut.write(buffer, 0, nLen);
+						}
+						
+						inFile.close();
+						
+					} catch (Exception ex) {
+						ex.printStackTrace();
+					}
+				}
+			}
+		}
 	}
 	
 	/**

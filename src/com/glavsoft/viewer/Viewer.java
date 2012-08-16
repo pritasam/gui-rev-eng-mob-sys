@@ -27,6 +27,7 @@ package com.glavsoft.viewer;
 import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.Dialog.ModalityType;
+import java.awt.Component;
 import java.awt.FlowLayout;
 import java.awt.Graphics;
 import java.awt.Image;
@@ -69,6 +70,7 @@ import com.glavsoft.rfb.IChangeSettingsListener;
 import com.glavsoft.rfb.IPasswordRetriever;
 import com.glavsoft.rfb.ISessionController;
 import com.glavsoft.rfb.client.KeyEventMessage;
+import com.glavsoft.rfb.client.PointerEventMessage;
 import com.glavsoft.rfb.protocol.Protocol;
 import com.glavsoft.rfb.protocol.ProtocolContext;
 import com.glavsoft.rfb.protocol.ProtocolSettings;
@@ -88,6 +90,10 @@ import com.glavsoft.viewer.swing.gui.OptionsDialog;
 import com.glavsoft.viewer.swing.gui.PasswordDialog;
 
 import de.ostfalia.mockup.generator.CMockupGenerator;
+import de.ostfalia.viewer.gui.extension.CGuiExtender;
+import de.ostfalia.viewer.gui.extension.CGuiExtenderAndroid;
+import de.ostfalia.viewer.gui.extension.CGuiExtenderIOS;
+import de.ostfalia.viewer.gui.extension.CGuiExtenderWinPhone;
 import de.ostfalia.viewer.inputrecorder.CInputRecorder;
 
 @SuppressWarnings("serial")
@@ -386,7 +392,10 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 	}
 
 	protected void createButtonsPanel(Container container,
-			final ProtocolContext context) {		
+			final ProtocolContext context) {
+		CGuiExtender extender = null;
+		String strName = "";
+		
 		JPanel buttonBar = new JPanel(new FlowLayout(FlowLayout.LEADING, 4, 1));
 
 		Insets buttonsMargin = new Insets(2, 2, 2, 2);
@@ -427,179 +436,115 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 				setSurfaceToHandleKbdFocus();
 			}
 		});
-
-		kbdButtons = new LinkedList<JComponent>();
-		buttonBar.add(Box.createHorizontalStrut(10));
-		JButton ctrlAltDelButton = new JButton(Utils.getButtonIcon("ctrl-alt-del"));
-		ctrlAltDelButton.setToolTipText("Send 'Ctrl-Alt-Del'");
-		ctrlAltDelButton.setMargin(buttonsMargin);
-		buttonBar.add(ctrlAltDelButton);
-		kbdButtons.add(ctrlAltDelButton);
-		ctrlAltDelButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendCtrlAltDel(context);
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-
-		JButton winButton = new JButton(Utils.getButtonIcon("win"));
-		winButton.setToolTipText("Send 'Win' key as 'Ctrl-Esc'");
-		winButton.setMargin(buttonsMargin);
-		buttonBar.add(winButton);
-		kbdButtons.add(winButton);
-		winButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendWinKey(context);
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-
-		JToggleButton ctrlButton = new JToggleButton(Utils.getButtonIcon("ctrl"));
-		ctrlButton.setToolTipText("Ctrl Lock");
-		ctrlButton.setMargin(buttonsMargin);
-		buttonBar.add(ctrlButton);
-		kbdButtons.add(ctrlButton);
-		ctrlButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-		ctrlButton.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, true));
-				} else {
-					context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, false));
+		
+		// O. Laudi Start
+		strName = context.getRemoteDesktopName().toUpperCase();
+		if (strName.equals(new String("ANDROID"))) {
+			// Android
+			extender = new CGuiExtenderAndroid(container, context, workingProtocol, kbdButtons, surface);
+			extender.addOS_Buttons(buttonBar);
+		}
+		else if (strName.equals(new String("WINDOWS"))) {
+			// Windows Phone Mobile
+			extender = new CGuiExtenderWinPhone(container, context, workingProtocol, kbdButtons, surface);
+			extender.addOS_Buttons(buttonBar);
+		}
+		else if ((strName.contains("IPOD")) ||
+				(strName.contains("IPAD")) ||
+				(strName.contains("IPHONE"))) {
+			// iOS
+			extender = new CGuiExtenderIOS(container, context, workingProtocol, kbdButtons, surface);
+			extender.addOS_Buttons(buttonBar);
+		}
+		else {
+			// Default (Desktop)
+			kbdButtons = new LinkedList<JComponent>();
+			buttonBar.add(Box.createHorizontalStrut(10));
+			JButton ctrlAltDelButton = new JButton(Utils.getButtonIcon("ctrl-alt-del"));
+			ctrlAltDelButton.setToolTipText("Send 'Ctrl-Alt-Del'");
+			ctrlAltDelButton.setMargin(buttonsMargin);
+			buttonBar.add(ctrlAltDelButton);
+			kbdButtons.add(ctrlAltDelButton);
+			ctrlAltDelButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					sendCtrlAltDel(context);
+					setSurfaceToHandleKbdFocus();
 				}
-			}
-		});
+			});
 
-		JToggleButton altButton = new JToggleButton(Utils.getButtonIcon("alt"));
-		kbdButtons.add(altButton);
-		altButton.setToolTipText("Alt Lock");
-		altButton.setMargin(buttonsMargin);
-		buttonBar.add(altButton);
-		kbdButtons.add(altButton);
-		altButton.addItemListener(new ItemListener() {
-			@Override
-			public void itemStateChanged(ItemEvent e) {
-				if (e.getStateChange() == ItemEvent.SELECTED) {
-					context.sendMessage(new KeyEventMessage(Keymap.K_ALT_LEFT, true));
-				} else {
-					context.sendMessage(new KeyEventMessage(Keymap.K_ALT_LEFT, false));
+			JButton winButton = new JButton(Utils.getButtonIcon("win"));
+			winButton.setToolTipText("Send 'Win' key as 'Ctrl-Esc'");
+			winButton.setMargin(buttonsMargin);
+			buttonBar.add(winButton);
+			kbdButtons.add(winButton);
+			winButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					sendWinKey(context);
+					setSurfaceToHandleKbdFocus();
 				}
-			}
-		});
-		altButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-		ModifierButtonEventListener modifierButtonListener =
-				new ModifierButtonEventListener();
-		modifierButtonListener.addButton(KeyEvent.VK_CONTROL, ctrlButton);
-		modifierButtonListener.addButton(KeyEvent.VK_ALT, altButton);
-		surface.addModifierListener(modifierButtonListener);
+			});
+
+			JToggleButton ctrlButton = new JToggleButton(Utils.getButtonIcon("ctrl"));
+			ctrlButton.setToolTipText("Ctrl Lock");
+			ctrlButton.setMargin(buttonsMargin);
+			buttonBar.add(ctrlButton);
+			kbdButtons.add(ctrlButton);
+			ctrlButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setSurfaceToHandleKbdFocus();
+				}
+			});
+			ctrlButton.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+						context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, true));
+					} else {
+						context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, false));
+					}
+				}
+			});
+
+			JToggleButton altButton = new JToggleButton(Utils.getButtonIcon("alt"));
+			kbdButtons.add(altButton);
+			altButton.setToolTipText("Alt Lock");
+			altButton.setMargin(buttonsMargin);
+			buttonBar.add(altButton);
+			kbdButtons.add(altButton);
+			altButton.addItemListener(new ItemListener() {
+				@Override
+				public void itemStateChanged(ItemEvent e) {
+					if (e.getStateChange() == ItemEvent.SELECTED) {
+						context.sendMessage(new KeyEventMessage(Keymap.K_ALT_LEFT, true));
+					} else {
+						context.sendMessage(new KeyEventMessage(Keymap.K_ALT_LEFT, false));
+					}
+				}
+			});
+			altButton.addActionListener(new ActionListener() {
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					setSurfaceToHandleKbdFocus();
+				}
+			});
+			
+			ModifierButtonEventListener modifierButtonListener =
+					new ModifierButtonEventListener();
+			modifierButtonListener.addButton(KeyEvent.VK_CONTROL, ctrlButton);
+			modifierButtonListener.addButton(KeyEvent.VK_ALT, altButton);
+			surface.addModifierListener(modifierButtonListener);
+		}
+		
+		
+		// O. Laudi End
+		
 
 //		JButton fileTransferButton = new JButton(Utils.getButtonIcon("file-transfer"));
 //		fileTransferButton.setMargin(buttonsMargin);
 //		buttonBar.add(fileTransferButton);
-
-		/**
-		 * Start O. Laudi 14.03.2012
-		 */
-		
-		buttonBar.add(Box.createHorizontalStrut(10));
-		
-		JButton androidHomeButton = new JButton(Utils.getButtonIcon("android_home"));
-		androidHomeButton.setToolTipText("Home");
-		androidHomeButton.setMargin(buttonsMargin);
-		androidHomeButton.setAlignmentX(RIGHT_ALIGNMENT);
-		buttonBar.add(androidHomeButton);
-		androidHomeButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendAndroidHomeKey(context);
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-		
-		JButton androidMenuButton = new JButton(Utils.getButtonIcon("android_menu"));
-		androidMenuButton.setToolTipText("Menu");
-		androidMenuButton.setMargin(buttonsMargin);
-		androidMenuButton.setAlignmentX(RIGHT_ALIGNMENT);
-		buttonBar.add(androidMenuButton);
-		androidMenuButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendAndroidMenuKey(context);
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-		
-		JButton androidBackButton = new JButton(Utils.getButtonIcon("android_back"));
-		androidBackButton.setToolTipText("Back");
-		androidBackButton.setMargin(buttonsMargin);
-		androidBackButton.setAlignmentX(RIGHT_ALIGNMENT);
-		buttonBar.add(androidBackButton);
-		androidBackButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendAndroidBackKey(context);
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-		
-		JButton androidSearchButton = new JButton(Utils.getButtonIcon("android_search"));
-		androidSearchButton.setToolTipText("Search");
-		androidSearchButton.setMargin(buttonsMargin);
-		androidSearchButton.setAlignmentX(RIGHT_ALIGNMENT);
-		buttonBar.add(androidSearchButton);
-		androidSearchButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				sendAndroidSearchKey(context);
-				setSurfaceToHandleKbdFocus();
-			}
-		});
-		
-		buttonBar.add(Box.createHorizontalStrut(10));
-		
-		JToggleButton androidRecord = new JToggleButton(Utils.getButtonIcon("record"));
-		androidRecord.setToolTipText("Record Inputsequence");
-		androidRecord.setSelectedIcon(Utils.getButtonIcon("record-stop"));
-		androidRecord.setMargin(buttonsMargin);
-		androidRecord.setAlignmentX(RIGHT_ALIGNMENT);
-		buttonBar.add(androidRecord);
-		androidRecord.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// Start or stop record of inputsequences
-				CInputRecorder.getInst().setToggleRecord();
-				if (CInputRecorder.getInst().isRecord()) {
-					CInputRecorder.getInst().saveScreenshot(workingProtocol.getReceiverTask().getRenderer(), System.currentTimeMillis());
-				} else {
-					// Button released
-					String strName = JOptionPane.showInputDialog(null, "Enter the name of the diagram : ", 
-							"Mockupgenerator", 1);
-					CMockupGenerator mockgen = new CMockupGenerator(strName);
-					
-					if (mockgen.testMockModel())
-						JOptionPane.showMessageDialog(null, "Diagramfiles successfully generated.", "Mockupgenerator", 1); 
-					else
-						JOptionPane.showMessageDialog(null, "Errors occurred during generation of diagramfiles.", "Mockupgenerator", 1); 
-				}
-			}
-		});
-		
-		/**
-		 * End O. Laudi 14.03.2012
-		 */
 		
 		buttonBar.add(Box.createHorizontalStrut(10));
 
@@ -769,39 +714,6 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 		context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, false));
 	}
 	
-	/**
-	 * Start O. Laudi 14.03.2012
-	 */
-	
-	private void sendAndroidHomeKey(ProtocolContext context) {
-		context.sendMessage(new KeyEventMessage(Keymap.K_HOME, true));
-		context.sendMessage(new KeyEventMessage(Keymap.K_HOME, false));
-	}
-	
-	private void sendAndroidMenuKey(ProtocolContext context) {
-		context.sendMessage(new KeyEventMessage(Keymap.K_PAGE_UP, true));
-		context.sendMessage(new KeyEventMessage(Keymap.K_PAGE_UP, false));
-	}
-	
-	private void sendAndroidBackKey(ProtocolContext context) {
-		context.sendMessage(new KeyEventMessage(Keymap.K_DELETE, true));
-		context.sendMessage(new KeyEventMessage(Keymap.K_DELETE, false));
-	}
-	
-	private void sendAndroidSearchKey(ProtocolContext context) {
-		context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, true));
-		context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, false));
-	}
-	
-	private void sendAndroidRotateKey(ProtocolContext context) {
-		context.sendMessage(new KeyEventMessage(Keymap.K_F4, true));
-		context.sendMessage(new KeyEventMessage(Keymap.K_F4, false));
-	}
-	
-	/**
-	 * End O. Laudi 14.03.2012
-	 */
-
 	@Override
 	public void windowOpened(WindowEvent e) { /* nop */ }
 	@Override

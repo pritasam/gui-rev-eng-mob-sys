@@ -288,7 +288,7 @@ public class CXMLEmt {
 		ZipOutputStream	zipOut		= null;
 		
 		try {
-			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".zip"));
+			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
 		} catch (FileNotFoundException e) {
 			isSuccess = false;
 			e.printStackTrace();
@@ -300,12 +300,6 @@ public class CXMLEmt {
 				// recursive method to iterate mockup-folder
 				iterateMockupFolder(new File(strFolderToFiles), zipOut, 
 						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
-				
-				// rename generated zipfile to mockjar
-				File zipFile = new File(strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length() - 1), 
-						strMockUpName + ".zip");
-				isSuccess = zipFile.renameTo(new File(strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length() - 1), 
-						strMockUpName + ".mockjar"));
 				
 				if (zipOut != null)
 					zipOut.close();

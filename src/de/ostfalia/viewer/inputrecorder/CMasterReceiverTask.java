@@ -43,7 +43,7 @@ public class CMasterReceiverTask extends ReceiverTask {
 		if (m_eState == EReceiverState.TEST_RECEIVERTASK) {
 			
 			// User must show a static image
-			JOptionPane.showMessageDialog(null, "Please make sure to show a static screencontent on your device.", "Initialize device", 1);
+			JOptionPane.showMessageDialog(null, "Please make sure to show a static screencontent on your device.", "Initialize device", JOptionPane.INFORMATION_MESSAGE);
 
 			
 			m_stTester.run();
@@ -54,7 +54,7 @@ public class CMasterReceiverTask extends ReceiverTask {
 			} else {
 				m_eState = EReceiverState.DEFAULT_RECEIVERTASK;
 			}
-			JOptionPane.showMessageDialog(null, "State " + m_eState + " was detected.", "Initialization complete!", 1);
+			JOptionPane.showMessageDialog(null, "State " + m_eState + " was detected.", "Initialization complete!", JOptionPane.INFORMATION_MESSAGE);
 			CLogger.getInst(CLogger.SYS_OUT).writeline("State = " + m_eState);
 
 		}

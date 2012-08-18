@@ -433,6 +433,7 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				context.sendRefreshMessage();
+				
 				setSurfaceToHandleKbdFocus();
 			}
 		});

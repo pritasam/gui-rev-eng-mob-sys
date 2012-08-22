@@ -15,16 +15,33 @@ public class CKey extends CStoryEvent{
 	protected String	m_strDura = "";
 	
 	/**
-	 * @param strID
 	 * @param m_strPressed
 	 * @param m_strKeycode
 	 * @param m_strDura
+	 * @param m_strDELAY
 	 */
 	public CKey(String strPressed, String strKeycode,
-			String strDura) {
-		super();
+			String strDura, String strDELAY) {
+		super(strDELAY);
 		this.m_strPressed = strPressed;
 		this.m_strKeycode = strKeycode;
 		this.m_strDura = strDura;
+	}
+
+	@Override
+	public String getXMLString(int nIterationDepth) {
+		String strSpace 	= "";
+		String strResult 	= "";
+		
+		for (int i = 0; i < nIterationDepth; i++)
+			strSpace += m_XMLSPACE;
+		
+		strResult += strSpace + "<Key id=\"" + this.m_strID + "\" " +
+									  "pressed=\"" + this.m_strPressed + "\" " + 
+									  "keycode=\"" + this.m_strKeycode + "\" " + 
+									  "dura=\"" + this.m_strDura + "\" " +
+									  "delay=\"" + this.m_strDELAY + "\">\n";
+		
+		return strResult;
 	}
 }

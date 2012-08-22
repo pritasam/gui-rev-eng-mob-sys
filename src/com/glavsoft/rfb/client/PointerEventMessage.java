@@ -27,7 +27,6 @@ package com.glavsoft.rfb.client;
 import com.glavsoft.exceptions.TransportException;
 import com.glavsoft.transport.Writer;
 
-import de.ostfalia.viewer.logger.CLogger;
 
 public class PointerEventMessage implements ClientToServerMessage {
 	private final byte buttonMask;
@@ -78,7 +77,6 @@ public class PointerEventMessage implements ClientToServerMessage {
 
 	@Override
 	public void send(Writer writer) throws TransportException {
-		CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + this.toString());
 		writer.writeByte(POINTER_EVENT);
 		writer.writeByte(buttonMask);
 		writer.writeInt16(x);

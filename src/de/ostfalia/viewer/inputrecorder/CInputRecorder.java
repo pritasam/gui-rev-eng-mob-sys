@@ -36,7 +36,9 @@ public class CInputRecorder{
 	private boolean					m_isRecord;
 	private CStoryboard				m_storyboard;
 	private CSequence				m_sequence;
-	private long					m_lngEventTimer;
+	private long					m_lTimeStamp;
+	private long					m_lngLastSeqBegin;
+	private long					m_lngLastEventEnd;
 	private byte 					m_buttonMask;
 	private short 					m_x;
 	private short 					m_y;
@@ -45,12 +47,11 @@ public class CInputRecorder{
 	 * Constructor
 	 */
 	private CInputRecorder() {
-		m_lastButtonMask 	= 0;
-		m_imageCmp 			= null;
-		m_isFirstImgSaved 	= false;
-		m_isEventMessage	= false;
-		m_isRecord			= false;
-		m_lngEventTimer		= 0;
+		m_lastButtonMask 		= 0;
+		m_imageCmp 				= null;
+		m_isFirstImgSaved 		= false;
+		m_isEventMessage		= false;
+		m_isRecord				= false;
 		initStoryboard();
 	}
 	
@@ -108,11 +109,15 @@ public class CInputRecorder{
 	}
 	
 	/**
+	 * Recordbegin
 	 * Creates a new Instance of CStoryboard
 	 */
 	public void initStoryboard() {
-		m_sequence		= new CSequence();
-		m_storyboard 	= new CStoryboard();
+		m_sequence			= null;
+		m_storyboard 		= new CStoryboard();
+		m_lTimeStamp		= System.currentTimeMillis();
+		m_lngLastSeqBegin	= 0;
+		m_lngLastEventEnd	= 0;
 	}
 	
 	/**
@@ -130,66 +135,101 @@ public class CInputRecorder{
 	 */
 	public void processMessage(ClientToServerMessage message, ReceiverTask receiverTask) {
 		if (this.m_isRecord) {
-			Long lTimeStamp = System.currentTimeMillis();
-			
-			if (message instanceof PointerEventMessage) {}
-			else {
-				CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
-			}
-			
+						
 			if (message instanceof PointerEventMessage) {
 				// Click
-				if ((1 == ((PointerEventMessage) message).getButtonMask()) && (m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
-//					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+				if ((1 == ((PointerEventMessage) message).getButtonMask()) && 
+						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+					m_lngLastSeqBegin 	= m_lTimeStamp;
+					m_lTimeStamp		= System.currentTimeMillis();
+					m_lngLastEventEnd 	= 0;
 					
-					CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
-					prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
-//					m_imageCmp.saveMasterAsPicFile();
-					this.m_isEventMessage = true;
-//					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+					saveScreenshot(receiverTask.getRenderer(), m_lTimeStamp);
+					// add last sequence to storyboard if exits and set targetID
+					if (m_sequence != null) {
+						m_sequence.setTARGETID(String.valueOf(m_lTimeStamp));
+						m_storyboard.addSequence(m_sequence);
+					}
+						
+					// create new sequence
+					this.m_sequence = new CSequence(String.valueOf(m_lTimeStamp), "", String.valueOf(m_lTimeStamp - m_lngLastSeqBegin));
 					
-					// if m_lngEventTimer = 0, then save coordinates and button, else create Touch or swipe
-					if (m_lngEventTimer == 0) {
-						m_lngEventTimer = System.currentTimeMillis();
-						m_buttonMask = ((PointerEventMessage)message).getButtonMask();
-						m_x = ((PointerEventMessage)message).getX();
-						m_y = ((PointerEventMessage)message).getY();
+					// save messagedata for decision of Eventtype
+					m_buttonMask = ((PointerEventMessage)message).getButtonMask();
+					m_x = ((PointerEventMessage)message).getX();
+					m_y = ((PointerEventMessage)message).getY();
+					
+//					CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
+//					prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+////					m_imageCmp.saveMasterAsPicFile();
+//					this.m_isEventMessage = true;
+////					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+				}
+				else if ((0 == ((PointerEventMessage) message).getButtonMask()) && 
+						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())){
+					
+
+					// unterscheiden sich Koordinaten, dann swipe, ansonsten touch
+					if ((m_x != ((PointerEventMessage)message).getX()) || 
+						(m_y != ((PointerEventMessage)message).getY())) {
+						// swipe
+						m_sequence.addSyncEvent(new CSwipe(String.valueOf(m_buttonMask), 
+								String.valueOf(m_x), 
+								String.valueOf(m_y), 
+								String.valueOf(((PointerEventMessage)message).getX()), 
+								String.valueOf(((PointerEventMessage)message).getY()), 
+								String.valueOf(System.currentTimeMillis() - m_lTimeStamp),
+								String.valueOf(m_lngLastEventEnd)));
 					}
 					else {
-						// unterscheiden sich Koordinaten, dann swipe, ansonsten touch
-						if ((m_x != ((PointerEventMessage)message).getX()) || 
-							(m_y != ((PointerEventMessage)message).getY())) {
-							// swipe
-							m_sequence.addSyncEvent(new CSwipe(String.valueOf(m_buttonMask), 
-									String.valueOf(m_x), 
-									String.valueOf(m_y), 
-									String.valueOf(((PointerEventMessage)message).getX()), 
-									String.valueOf(((PointerEventMessage)message).getY()), 
-									String.valueOf(System.currentTimeMillis() - m_lngEventTimer)));
-						}
-						else {
-							// touch
-							m_sequence.addSyncEvent(new CTouch(String.valueOf(m_buttonMask), 
-									String.valueOf(m_x), 
-									String.valueOf(m_y),
-									String.valueOf(System.currentTimeMillis() - m_lngEventTimer)));
-						}
-						
-						m_lngEventTimer = 0;
+						// touch
+						m_sequence.addSyncEvent(new CTouch(String.valueOf(m_buttonMask), 
+								String.valueOf(m_x), 
+								String.valueOf(m_y),
+								String.valueOf(System.currentTimeMillis() - m_lTimeStamp),
+								String.valueOf(m_lngLastEventEnd)));
 					}
+					
+					m_lngLastEventEnd = System.currentTimeMillis();
 				}
 				
 				m_lastButtonMask = ((PointerEventMessage) message).getButtonMask();
 			}
 			else if (message instanceof KeyEventMessage) {
-				prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
-//				m_imageCmp.saveMasterAsPicFile();
-				this.m_isEventMessage = true;
-//				saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
-				// Add KeyEvent to Storyboard
-				m_sequence.addSyncEvent(new CKey(String.valueOf(((KeyEventMessage)message).isDownFlag()), 
-												 String.valueOf(((KeyEventMessage)message).getKey()), 
-												 "0"));
+				if (((KeyEventMessage)message).isDownFlag()) {
+					m_lngLastSeqBegin 	= m_lTimeStamp;
+					m_lTimeStamp		= System.currentTimeMillis();
+					m_lngLastEventEnd 	= 0;
+					
+					saveScreenshot(receiverTask.getRenderer(), m_lTimeStamp);
+					// add last sequence to storyboard if exits and set targetID
+					if (m_sequence != null) {
+						m_sequence.setTARGETID(String.valueOf(m_lTimeStamp));
+						m_storyboard.addSequence(m_sequence);
+					}
+						
+					// create new sequence
+					this.m_sequence = new CSequence(String.valueOf(m_lTimeStamp), "", String.valueOf(m_lTimeStamp - m_lngLastSeqBegin));
+					
+//					// pressed
+//					CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
+//					
+//					m_lngKeyEventTimer = System.currentTimeMillis();
+//					prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
+////					m_imageCmp.saveMasterAsPicFile();
+//					this.m_isEventMessage = true;
+//					saveScreenshot(receiverTask.getRenderer(), m_lTimeStamp);
+				}
+				else {
+					// released
+					// Add KeyEvent to Storyboard
+					m_sequence.addSyncEvent(new CKey("true", 
+													 String.valueOf(((KeyEventMessage)message).getKey()), 
+													 String.valueOf(System.currentTimeMillis() - m_lTimeStamp), 
+													 String.valueOf(m_lngLastEventEnd)));
+					
+					m_lngLastEventEnd = System.currentTimeMillis();
+				}
 			}
 		}
 	}
@@ -241,13 +281,6 @@ public class CInputRecorder{
 			image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
 			
 			isDifferent = m_imageCmp.compareMasterWith(image);
-			
-			// End Sequence in Storyboard, if images are equal and create new object
-			if (!isDifferent)
-			{
-				m_storyboard.addSequence(m_sequence);
-				m_sequence = new CSequence();
-			}
 		}
 		else
 		{
@@ -255,5 +288,31 @@ public class CInputRecorder{
 			prepareImageCompare(renderer, System.currentTimeMillis());
 		}
 		return isDifferent;
+	}
+	
+	/**
+	 * Sets the name
+	 * saves the last screenshot
+	 * adds the last screenshot as target to the last sequence
+	 * add last sequence to the storyboard
+	 * generate storyboard
+	 * @param strID
+	 * @return
+	 */
+	public boolean finish(ReceiverTask receiverTask, String strID) {
+		boolean isSuccess = true;
+		Long lTimeStamp = System.currentTimeMillis();
+		
+		saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+		if (m_sequence != null) {
+			m_sequence.setTARGETID(String.valueOf(lTimeStamp));
+			if (m_storyboard != null) {
+				m_storyboard.addSequence(m_sequence);
+			}
+		}
+		
+		this.m_storyboard.finish(strID);
+		
+		return isSuccess;
 	}
 }

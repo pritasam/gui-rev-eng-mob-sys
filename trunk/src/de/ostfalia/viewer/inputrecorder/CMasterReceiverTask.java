@@ -15,7 +15,7 @@ import com.glavsoft.transport.Reader;
 import de.ostfalia.viewer.logger.CLogger;
 
 /**
- * @author Hans
+ * @author O. Laudi
  *
  */
 public class CMasterReceiverTask extends ReceiverTask {

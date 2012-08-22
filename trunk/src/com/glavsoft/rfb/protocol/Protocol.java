@@ -195,10 +195,16 @@ public class Protocol implements ProtocolContext, IChangeSettingsListener {
 		/**
 		 * O. Laudi Start
 		 */
-//		receiverTask = CReceiverTaskProvider.getInst().getReceiverTask(reader,
-//				repaintController, clipboardController, sessionManager, decoders, 
-//				this);
-		receiverTask = new CMasterReceiverTask(reader, repaintController, clipboardController, sessionManager, decoders, this);
+		receiverTask = new ReceiverTask(
+				reader, repaintController,
+				clipboardController, sessionManager,
+				decoders, this);
+		
+		
+		
+		//receiverTask = new CMasterReceiverTask(reader, repaintController, clipboardController, sessionManager, decoders, this);
+		
+		
 		//ReceiverTask receiverTaskTmp = new ReceiverTask(receiverTask);
 //		receiverTask = new ReceiverTask(
 //				reader, repaintController,

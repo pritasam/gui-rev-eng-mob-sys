@@ -105,7 +105,12 @@ public class ProtocolSettings {
         settings.preferredEncoding = DEFAULT_PREFERRED_ENCODING;
         settings.allowCopyRect = true;
         settings.compressionLevel = DEFAULT_COMPRESSION_LEVEL;
+        // O. Laudi Start
+        // Values: 1-9. When not specified, the server will not use " +
+		// "lossy JPEG compression in \"Tight\" encoding.
+        //settings.jpegQuality = -1;
         settings.jpegQuality = DEFAULT_JPEG_QUALITY;
+        // O. Laudi Ende
         settings.prefEncodingChanged = true;
         settings.convertToAscii = false;
         settings.allowClipboardTransfer = true;

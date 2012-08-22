@@ -76,14 +76,13 @@ public abstract class CGuiExtender {
 				CInputRecorder.getInst().setToggleRecord();
 				if (CInputRecorder.getInst().isRecord()) {
 					CInputRecorder.getInst().initStoryboard();
-					CInputRecorder.getInst().saveScreenshot(m_workingProtocol.getReceiverTask().getRenderer(), System.currentTimeMillis());
 				} else {
 					// Button released
 					String strName = JOptionPane.showInputDialog(null, "Enter the name of the diagram : ", 
 							"Mockupgenerator", JOptionPane.INFORMATION_MESSAGE);
 					
 					// Set Name for Storyboard
-					CInputRecorder.getInst().getStoryboard().finish(strName);
+					CInputRecorder.getInst().finish(m_workingProtocol.getReceiverTask(), strName);
 					
 					// Generates the mock-file
 					CMockupGenerator mockgen = new CMockupGenerator(strName);

@@ -15,6 +15,11 @@ import com.glavsoft.rfb.client.KeyEventMessage;
 import com.glavsoft.rfb.client.PointerEventMessage;
 import com.glavsoft.rfb.protocol.ReceiverTask;
 
+import de.ostfalia.mockup.datamodel.storyboard.CKey;
+import de.ostfalia.mockup.datamodel.storyboard.CSequence;
+import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
+import de.ostfalia.mockup.datamodel.storyboard.CSwipe;
+import de.ostfalia.mockup.datamodel.storyboard.CTouch;
 import de.ostfalia.viewer.logger.CLogger;
 
 /**
@@ -29,6 +34,12 @@ public class CInputRecorder{
 	private boolean					m_isFirstImgSaved;
 	private boolean					m_isEventMessage;
 	private boolean					m_isRecord;
+	private CStoryboard				m_storyboard;
+	private CSequence				m_sequence;
+	private long					m_lngEventTimer;
+	private byte 					m_buttonMask;
+	private short 					m_x;
+	private short 					m_y;
 	
 	/**
 	 * Constructor
@@ -39,6 +50,8 @@ public class CInputRecorder{
 		m_isFirstImgSaved 	= false;
 		m_isEventMessage	= false;
 		m_isRecord			= false;
+		m_lngEventTimer		= 0;
+		initStoryboard();
 	}
 	
 	/**
@@ -93,6 +106,22 @@ public class CInputRecorder{
 	public void setToggleRecord() {
 		this.m_isRecord = !this.m_isRecord;
 	}
+	
+	/**
+	 * Creates a new Instance of CStoryboard
+	 */
+	public void initStoryboard() {
+		m_sequence		= new CSequence();
+		m_storyboard 	= new CStoryboard();
+	}
+	
+	/**
+	 * 
+	 * @return m_storyboard
+	 */
+	public CStoryboard getStoryboard() {
+		return this.m_storyboard;
+	}
 
 	/**
 	 * Handels the extended behavior to the SendMessage-method in the Protocol-class
@@ -118,6 +147,36 @@ public class CInputRecorder{
 //					m_imageCmp.saveMasterAsPicFile();
 					this.m_isEventMessage = true;
 //					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+					
+					// if m_lngEventTimer = 0, then save coordinates and button, else create Touch or swipe
+					if (m_lngEventTimer == 0) {
+						m_lngEventTimer = System.currentTimeMillis();
+						m_buttonMask = ((PointerEventMessage)message).getButtonMask();
+						m_x = ((PointerEventMessage)message).getX();
+						m_y = ((PointerEventMessage)message).getY();
+					}
+					else {
+						// unterscheiden sich Koordinaten, dann swipe, ansonsten touch
+						if ((m_x != ((PointerEventMessage)message).getX()) || 
+							(m_y != ((PointerEventMessage)message).getY())) {
+							// swipe
+							m_sequence.addSyncEvent(new CSwipe(String.valueOf(m_buttonMask), 
+									String.valueOf(m_x), 
+									String.valueOf(m_y), 
+									String.valueOf(((PointerEventMessage)message).getX()), 
+									String.valueOf(((PointerEventMessage)message).getY()), 
+									String.valueOf(System.currentTimeMillis() - m_lngEventTimer)));
+						}
+						else {
+							// touch
+							m_sequence.addSyncEvent(new CTouch(String.valueOf(m_buttonMask), 
+									String.valueOf(m_x), 
+									String.valueOf(m_y),
+									String.valueOf(System.currentTimeMillis() - m_lngEventTimer)));
+						}
+						
+						m_lngEventTimer = 0;
+					}
 				}
 				
 				m_lastButtonMask = ((PointerEventMessage) message).getButtonMask();
@@ -127,6 +186,10 @@ public class CInputRecorder{
 //				m_imageCmp.saveMasterAsPicFile();
 				this.m_isEventMessage = true;
 //				saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
+				// Add KeyEvent to Storyboard
+				m_sequence.addSyncEvent(new CKey(String.valueOf(((KeyEventMessage)message).isDownFlag()), 
+												 String.valueOf(((KeyEventMessage)message).getKey()), 
+												 "0"));
 			}
 		}
 	}
@@ -178,6 +241,13 @@ public class CInputRecorder{
 			image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
 			
 			isDifferent = m_imageCmp.compareMasterWith(image);
+			
+			// End Sequence in Storyboard, if images are equal and create new object
+			if (!isDifferent)
+			{
+				m_storyboard.addSequence(m_sequence);
+				m_sequence = new CSequence();
+			}
 		}
 		else
 		{

@@ -86,7 +86,8 @@ public class CStoryboard extends CXMLStoryboardEmt{
 	private boolean saveAsXML() {
 		boolean			isSuccess 		= true;
 		BufferedWriter	bw;
-		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n";
+		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n" + 
+										  "<!DOCTYPE  MenuLayout SYSTEM \"Storyboard.dtd\">\n";
 		
 		isSuccess	= new File("Storyboard" + File.separator + 
 				this.m_strID).mkdirs();

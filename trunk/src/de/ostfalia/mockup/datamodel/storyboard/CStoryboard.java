@@ -5,6 +5,8 @@ package de.ostfalia.mockup.datamodel.storyboard;
 
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -77,6 +79,14 @@ public class CStoryboard extends CXMLStoryboardEmt{
 	 * sets the Storyboardname
 	 * @param strID
 	 */
+	public void setID(String strID) {
+		this.m_strID = strID;
+	}
+	
+	/**
+	 * sets the Storyboardname
+	 * @param strID
+	 */
 	public void finish(String strID) {
 		this.m_strID = strID;
 		// save as xml-file
@@ -87,15 +97,20 @@ public class CStoryboard extends CXMLStoryboardEmt{
 		boolean			isSuccess 		= true;
 		BufferedWriter	bw;
 		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n" + 
-										  "<!DOCTYPE  MenuLayout SYSTEM \"Storyboard.dtd\">\n";
+										  "<!DOCTYPE  Storyboard SYSTEM \"Storyboard.dtd\">\n";
 		
 		isSuccess	= new File("Storyboard" + File.separator + 
 				this.m_strID).mkdirs();
 		
 		if (isSuccess) {
+			// create storyfile
 			File			fStoryFile		= new File("Storyboard" + File.separator + 
 					this.m_strID + File.separator + 
 						this.m_strID + ".story");
+			// copy dtd-file
+			copyDTD(new File("Storyboard" + File.separator + 
+						this.m_strID + File.separator + 
+						"Storyboard.dtd"));
 			
 			try {
 				fStoryFile.createNewFile();
@@ -112,6 +127,38 @@ public class CStoryboard extends CXMLStoryboardEmt{
 		}		
 		
 		return isSuccess;
+	}
+	
+	/**
+	 * copys the dtd-file to a destinationfolder
+	 * @param strDestFile
+	 */
+	private void copyDTD(File fDestFile) {
+		File fInputDTD = new File("src" + File.separator + 
+								  "de" + File.separator + 
+								  "ostfalia" + File.separator + 
+								  "xml" + File.separator + 
+								  "reader" + File.separator + 
+								  "Storyboard.dtd");
+		FileReader in;
+		FileWriter out;
+		try {
+			in = new FileReader(fInputDTD);
+			out = new FileWriter(fDestFile);
+			
+			int c;
+
+		    while ((c = in.read()) != -1)
+		      out.write(c);
+
+		    in.close();
+		    out.close();
+			
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 
 	@Override

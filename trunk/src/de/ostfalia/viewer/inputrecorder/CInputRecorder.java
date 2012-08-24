@@ -34,6 +34,7 @@ public class CInputRecorder{
 	private boolean					m_isFirstImgSaved;
 	private boolean					m_isEventMessage;
 	private boolean					m_isRecord;
+	private boolean					m_isStoryPlaying;
 	private CStoryboard				m_storyboard;
 	private CSequence				m_sequence;
 	private long					m_lTimeStamp;
@@ -52,6 +53,7 @@ public class CInputRecorder{
 		m_isFirstImgSaved 		= false;
 		m_isEventMessage		= false;
 		m_isRecord				= false;
+		m_isStoryPlaying		= false;
 		initStoryboard();
 	}
 	
@@ -109,6 +111,20 @@ public class CInputRecorder{
 	}
 	
 	/**
+	 * @return the m_isStroybPlaying
+	 */
+	public boolean isStoryPlaying() {
+		return m_isStoryPlaying;
+	}
+
+	/**
+	 * @param m_isStroybPlaying the m_isStroybPlaying to set
+	 */
+	public void setToggleStoryPlaying() {
+		this.m_isStoryPlaying = !this.m_isStoryPlaying;
+	}
+
+	/**
 	 * Recordbegin
 	 * Creates a new Instance of CStoryboard
 	 */
@@ -138,8 +154,11 @@ public class CInputRecorder{
 						
 			if (message instanceof PointerEventMessage) {
 				// Click
+				//CLogger.getInst(CLogger.SYS_OUT).writeline("CInputRecorder::processMessage(): PointerEventMessage: " + ((PointerEventMessage)message).toString());
+				
 				if ((1 == ((PointerEventMessage) message).getButtonMask()) && 
 						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+					
 					m_lngLastSeqBegin 	= m_lTimeStamp;
 					m_lTimeStamp		= System.currentTimeMillis();
 					m_lngLastEventEnd 	= 0;
@@ -256,11 +275,11 @@ public class CInputRecorder{
 		BufferedImage image = new BufferedImage(renderer.getWidth(), renderer.getHeight(), BufferedImage.TYPE_INT_RGB);
 		image.setRGB(0, 0, renderer.getWidth(), renderer.getHeight(), renderer.getPixels(), 0, renderer.getWidth());
 		
-		CLogger.getInst(CLogger.FILE).writeline("InputRecorder::saveScreenshot: scr_" + lTimestamp + "_Current.png");
+		CLogger.getInst(CLogger.FILE).writeline("InputRecorder::saveScreenshot: scr_" + lTimestamp + ".png");
 		
 		try {
 		    // retrieve image
-		    File outputfile = new File("Screenshots" + File.separator + "scr_" + lTimestamp + "_Current.png");
+		    File outputfile = new File("Screenshots" + File.separator + "scr_" + lTimestamp + ".png");
 		    ImageIO.write(image, "png", outputfile);
 		} catch (IOException e) {
 		    e.printStackTrace();

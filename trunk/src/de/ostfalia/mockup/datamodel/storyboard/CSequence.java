@@ -103,6 +103,20 @@ public class CSequence extends CXMLStoryboardEmt{
 	}
 
 	/**
+	 * @return the m_mapASYNC
+	 */
+	public HashMap<String, CStoryEvent> getMapASYNC() {
+		return m_mapASYNC;
+	}
+
+	/**
+	 * @return the m_mapSYNC
+	 */
+	public HashMap<String, CStoryEvent> getMapSYNC() {
+		return m_mapSYNC;
+	}
+
+	/**
 	 * adds an Async-event
 	 * @param stEvent
 	 */
@@ -157,6 +171,10 @@ public class CSequence extends CXMLStoryboardEmt{
 		}
 		strResult += strSpace + "</Sync>\n";
 		
+		nIterationDepth--;
+		strSpace	= "";
+		for (int i = 0; i < nIterationDepth; i++)
+			strSpace += m_XMLSPACE;
 		strResult += strSpace + "</Sequence>\n";
 		
 		return strResult;

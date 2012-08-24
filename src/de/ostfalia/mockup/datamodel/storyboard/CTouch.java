@@ -31,6 +31,70 @@ public class CTouch extends CStoryEvent{
 		this.m_strDura = strDura;
 	}
 
+	/**
+	 * @return the m_strbtn
+	 */
+	public String getBtn() {
+		return m_strbtn;
+	}
+
+
+	/**
+	 * @param m_strbtn the m_strbtn to set
+	 */
+	public void setBtn(String strbtn) {
+		this.m_strbtn = strbtn;
+	}
+
+
+	/**
+	 * @return the m_strX
+	 */
+	public String getX() {
+		return m_strX;
+	}
+
+
+	/**
+	 * @param m_strX the m_strX to set
+	 */
+	public void setX(String strX) {
+		this.m_strX = strX;
+	}
+
+
+	/**
+	 * @return the m_strY
+	 */
+	public String getY() {
+		return m_strY;
+	}
+
+
+	/**
+	 * @param m_strY the m_strY to set
+	 */
+	public void setY(String strY) {
+		this.m_strY = strY;
+	}
+
+
+	/**
+	 * @return the m_strDura
+	 */
+	public String getDura() {
+		return m_strDura;
+	}
+
+
+	/**
+	 * @param m_strDura the m_strDura to set
+	 */
+	public void setDura(String strDura) {
+		this.m_strDura = strDura;
+	}
+
+
 	@Override
 	public String getXMLString(int nIterationDepth) {
 		String strSpace 	= "";
@@ -44,7 +108,7 @@ public class CTouch extends CStoryEvent{
 									  "x=\"" + this.m_strX + "\" " + 
 									  "y=\"" + this.m_strY + "\" " + 
 									  "dura=\"" + this.m_strDura + "\" " +
-									  "delay=\"" + this.m_strDELAY + "\">\n";
+									  "delay=\"" + this.m_strDELAY + "\"></Touch>\n";
 		
 		return strResult;
 	}

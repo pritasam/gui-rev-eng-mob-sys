@@ -81,7 +81,7 @@ public class CSwipe extends CStoryEvent{
 	 * @param m_strY1 the m_strY1 to set
 	 */
 	public void setY1(String strY1) {
-		this.m_strY1 = m_strY1;
+		this.m_strY1 = strY1;
 	}
 
 

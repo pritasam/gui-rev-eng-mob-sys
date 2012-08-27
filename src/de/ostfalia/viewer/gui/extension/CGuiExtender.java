@@ -23,11 +23,9 @@ import com.glavsoft.rfb.protocol.ProtocolContext;
 import com.glavsoft.viewer.swing.Surface;
 import com.glavsoft.viewer.swing.Utils;
 
-import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboardPlayer;
 import de.ostfalia.mockup.generator.CMockupGenerator;
 import de.ostfalia.viewer.inputrecorder.CInputRecorder;
-import de.ostfalia.xml.reader.CXMLReader;
 import de.ostfalia.xml.reader.CXMLStoryboardReader;
 
 /**
@@ -86,8 +84,8 @@ public abstract class CGuiExtender {
 					CInputRecorder.getInst().initStoryboard();
 				} else {
 					// Button released
-					String strName = JOptionPane.showInputDialog(null, "Enter the name of the diagram : ", 
-							"Mockupgenerator", JOptionPane.INFORMATION_MESSAGE);
+					String strName = JOptionPane.showInputDialog(null, "Enter the name of the exported MockUp-files : ", 
+							"MockUp-files Generator", JOptionPane.INFORMATION_MESSAGE);
 					
 					// Set Name for Storyboard
 					CInputRecorder.getInst().finish(m_workingProtocol.getReceiverTask(), strName);

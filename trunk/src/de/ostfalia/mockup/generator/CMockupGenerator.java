@@ -60,7 +60,8 @@ public class CMockupGenerator {
 		mockApp.addChildNode(new CMockOverlayView("OverLayView", "images/Master3.png", "Targetview", true, false));
 		mockApp.addChildNode(new CMockEnd("_End"));
 		m_mockTree.addChildNode(mockApp);
-		return m_mockTree.saveToMockjarFile(m_strDiagramName);
+		//TODO: m_picMap mit Master1 und Master2.png initialisieren
+		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap);
 	}
 	
 	/**
@@ -75,6 +76,8 @@ public class CMockupGenerator {
 		createPicMap();
 		
 		// create directed graph
+		isSuccess = buildMockTree();
+		
 		return isSuccess;
 	}
 	
@@ -115,6 +118,9 @@ public class CMockupGenerator {
 		return sb.toString();
 	}
 	
+	/**
+	 * creates a HashMap <String, List<String>> with crc as Key and IDs for Screenshots as Values
+	 */
 	private void createPicMap() {
 		String strCRC		= "";
 		CSequence sequence	= null;
@@ -164,5 +170,65 @@ public class CMockupGenerator {
 				m_picMap.put(strCRC, lstTmp);
 			}
 		}
+	}
+	
+	/**
+	 * builds the mocktree based on the storyboard and the picMap
+	 * @return
+	 */
+	private boolean buildMockTree() {
+		CSequence sequence	= null;
+		
+		m_mockTree = new CMockDocumentRoot();
+		CMockApplication mockApp = new CMockApplication(m_strDiagramName, 3);
+		
+		// iterate all sequences of storyboard
+		for (int nSeq = 1; nSeq <= m_storyboard.getSequences().size(); nSeq++) {
+			sequence = m_storyboard.getSequences().get(String.valueOf(nSeq));
+			
+			if (nSeq == 1) {
+				// Start
+				CMockStart mockStart = new CMockStart("_Start", findCRCforID(sequence.getSTARTID()));
+				mockStart.addChildNode(new CMockStartLink("Start123", findCRCforID(sequence.getSTARTID())));
+				mockApp.addChildNode(mockStart);
+			}
+			else if (nSeq == m_storyboard.getSequences().size()) {
+				// End
+				CMockView mockView1 = new CMockView(findCRCforID(sequence.getTARGETID()), "images/" + sequence.getTARGETID() + ".png", false);
+				mockView1.addChildNode(new CMockKeyLink("KeyID_End", "_End", EnumKey.HOME));
+				mockApp.addChildNode(mockView1);
+				mockApp.addChildNode(new CMockEnd("_End"));
+			}
+			else {
+				CMockView mockView1 = new CMockView(findCRCforID(sequence.getTARGETID()), "images/" + sequence.getTARGETID() + ".png", false);
+				mockView1.addChildNode(new CMockKeyLink("KeyID123", "_End", EnumKey.HOME));
+				mockApp.addChildNode(mockView1);
+			}
+		}
+		
+		m_mockTree.addChildNode(mockApp);
+		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap);
+	}
+	
+	/**
+	 * find the CRC to a saved Screenshot-ID
+	 * @param strID
+	 * @return
+	 */
+	private String findCRCforID(String strID) {
+		String strReturn 		= "";
+		List<String> lstValue	= null;
+		
+		if (m_picMap != null) {
+			for (String strCRC : m_picMap.keySet()) {
+				lstValue = m_picMap.get(strCRC);
+				
+				if (lstValue.contains(strID)) {
+					strReturn = strCRC;
+				}
+			}
+		}
+		
+		return strReturn;
 	}
 }

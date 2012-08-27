@@ -161,10 +161,27 @@ public class CStoryboardPlayer {
 							float fAlpha 	= 0.0f;
 							float fx 		= 0.0f;
 							float fy 		= 0.0f;
+							int	nCount		= 0;
 							lngLastEvent = m_lngTimestamp;
 							while ((System.currentTimeMillis() - m_lngTimestamp) < Integer.valueOf(switchEvent.getDura())) {
-								// send every 100ms an interpolated message
-								if ((System.currentTimeMillis() - lngLastEvent) > 100) {
+								nCount++;
+								
+								if (nCount < 2) {
+									// send first event after initial just after first because of slidebug
+									fAlpha = (float)(System.currentTimeMillis() - m_lngTimestamp) / Float.valueOf(switchEvent.getDura());
+									fx = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getX1()) + 
+											fAlpha * (float)Short.valueOf(switchEvent.getX2()));
+									fy = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getY1()) + 
+											fAlpha * (float)Short.valueOf(switchEvent.getY2()));
+									
+									CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " interpolation x:" + fx + " y:" + fy);
+									
+									m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(switchEvent.getBtn()), 
+																			  			  (short)fx,
+																			  			  (short)fy));
+									lngLastEvent = System.currentTimeMillis();
+								} else if ((System.currentTimeMillis() - lngLastEvent) > 25) {
+									// send every 25ms an interpolated message (50 and 100 are too much!!!)
 									fAlpha = (float)(System.currentTimeMillis() - m_lngTimestamp) / Float.valueOf(switchEvent.getDura());
 									fx = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getX1()) + 
 											fAlpha * (float)Short.valueOf(switchEvent.getX2()));

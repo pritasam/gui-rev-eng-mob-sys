@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -97,7 +98,7 @@ public class CXMLEmt {
 	 * @param strDiagramName
 	 * @return
 	 */
-	public boolean saveToMockjarFile(String strDiagramName) {
+	public boolean saveToMockjarFile(String strDiagramName, HashMap<String, List<String>> picMap) {
 		// gen Mock-file
 		boolean	isSuccess	= new File("DiagMock" + File.separator + 
 											strDiagramName + File.separator + 
@@ -145,7 +146,8 @@ public class CXMLEmt {
 										strDiagramName + File.separator + 
 											"images").mkdirs();
 		
-			//TODO: create copyImages-method
+			if (isSuccess)
+				isSuccess = copyImages(strDiagramName, picMap);
 		}
 		
 		// create mockjar-file
@@ -268,12 +270,69 @@ public class CXMLEmt {
 	/**
 	 * copies all neccessary image-file for the Mockup-diagram 
 	 * to the image-folder
+	 * @param picMap
 	 * @return
 	 */
-	private boolean copyImages() {
-		boolean			isSuccess 	= true;
+	private boolean copyImages(String strDiagramName, HashMap<String, List<String>> picMap) {
+		boolean		 isSuccess 		= true;
+		List<String> lstValue		= null;
+		
+		if (picMap != null) {
+			for (String strCRC : picMap.keySet()) {
+				lstValue = picMap.get(strCRC);
+				
+				for (String strID : lstValue) {
+					copyFileBasedOnID(strDiagramName, strID);
+				}
+			}
+		}
 		
 		return isSuccess;
+	}
+	
+	/**
+	 * copies an screenshot with the namepattern "scr_" + strID + ".png"
+	 * to the folder "DiagMock\" + strDiagramName + "\images\scr_" + strID + ".png"
+	 * @param strDiagramName
+	 * @param strID
+	 */
+	private void copyFileBasedOnID(String strDiagramName, String strID) {
+		File fSource = new File("Screenshots" + File.separator + 
+								  "scr_" + strID + ".png");
+		
+		File fTarget = new File("DiagMock" + File.separator +
+								strDiagramName + File.separator + 
+								"images" + File.separator +
+								"scr_" + strID + ".png");
+		
+		FileInputStream fisSource 	= null;
+	    FileOutputStream fosTarget 	= null;
+	    try {
+			fisSource = new FileInputStream(fSource);
+			fosTarget = new FileOutputStream(fTarget);
+			byte[] buffer = new byte[4096];
+			int bytesRead;
+			
+			while ((bytesRead = fisSource.read(buffer)) != -1)
+			fosTarget.write(buffer, 0, bytesRead); // write
+	    } catch (IOException e) {
+			e.printStackTrace();
+	    } finally {
+	    	if (fisSource != null) {
+	    		try {
+		        	fisSource.close();
+		        } catch (IOException e) {
+		        	;
+		        }
+	    	}
+	    	if (fosTarget != null) {
+	    		try {
+		        	fosTarget.close();
+		        } catch (IOException e) {
+		        	;
+		        }
+	    	}
+	    }
 	}
 	
 	/**

@@ -3,6 +3,7 @@
  */
 package de.ostfalia.mockup.generator;
 
+import java.awt.Point;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -25,6 +26,7 @@ import de.ostfalia.mockup.datamodel.mock.CMockStartLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
 import de.ostfalia.mockup.datamodel.storyboard.CSequence;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
+import de.ostfalia.screenshot.analysis.CPicAnalyzer;
 
 /**
  * @author O. Laudi
@@ -74,6 +76,9 @@ public class CMockupGenerator {
 		
 		// create picMap with crc: Map<crc, id>
 		createPicMap();
+		
+		// buttondetection
+		detectButtons();
 		
 		// create directed graph
 		isSuccess = buildMockTree();
@@ -170,6 +175,32 @@ public class CMockupGenerator {
 				m_picMap.put(strCRC, lstTmp);
 			}
 		}
+	}
+	
+	/**
+	 * detect buttons in images stored in PicMap
+	 * @return
+	 */
+	private boolean detectButtons() {
+		// iterate picMap
+		if (this.m_picMap != null) {
+			for (String strMD5 : this.m_picMap.keySet()) {
+				List<String> lstEmt		= this.m_picMap.get(strMD5);
+				
+				// get first Value in List
+				if (lstEmt != null) {
+					if (lstEmt.size() > 0) {
+						CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
+																   "scr_" + lstEmt.get(0) + ".png");
+						analyze.getSurroundedRect(new Point(1, 1));
+					}
+				}
+			}
+		}
+		
+		
+		
+		return true;
 	}
 	
 	/**

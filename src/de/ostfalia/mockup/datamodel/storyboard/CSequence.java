@@ -158,20 +158,24 @@ public class CSequence extends CXMLStoryboardEmt{
 		
 		nIterationDepth++;
 		// add all async events
-		strResult += strSpace + "<Async>\n";
-		for (int nSyncNr = 0; nSyncNr < m_mapASYNC.size(); nSyncNr++) {
-			strResult += m_mapASYNC.get(String.valueOf(nSyncNr + 1)).getXMLString(nIterationDepth);
+		if (m_mapASYNC.size() > 0) {
+			strResult += strSpace + "<Async>\n";
+			for (int nSyncNr = 0; nSyncNr < m_mapASYNC.size(); nSyncNr++) {
+				strResult += m_mapASYNC.get(String.valueOf(nSyncNr + 1)).getXMLString(nIterationDepth);
+			}
+			strResult += strSpace + "</Async>\n";
 		}
-		strResult += strSpace + "</Async>\n";
 		
 		// add all sync events
-		strResult += strSpace + "<Sync>\n";
-		for (int nSyncNr = 0; nSyncNr < m_mapSYNC.size(); nSyncNr++) {
-			strResult += m_mapSYNC.get(String.valueOf(nSyncNr + 1)).getXMLString(nIterationDepth);
+		if (m_mapSYNC.size() > 0) {
+			strResult += strSpace + "<Sync>\n";
+			for (int nSyncNr = 0; nSyncNr < m_mapSYNC.size(); nSyncNr++) {
+				strResult += m_mapSYNC.get(String.valueOf(nSyncNr + 1)).getXMLString(nIterationDepth);
+			}
+			strResult += strSpace + "</Sync>\n";
 		}
-		strResult += strSpace + "</Sync>\n";
 		
-		nIterationDepth--;
+		nIterationDepth -= 2;
 		strSpace	= "";
 		for (int i = 0; i < nIterationDepth; i++)
 			strSpace += m_XMLSPACE;

@@ -18,6 +18,9 @@ import de.ostfalia.viewer.logger.CLogger;
  *
  */
 public class CStoryboardPlayer {
+	// Constant
+	private final int				MIN_EVENT_DELAY = 25;
+	// Member
 	private CStoryboard				m_storyboard;
 	private Protocol				m_workingProtocol;
 	private boolean					m_isStopped;
@@ -68,12 +71,15 @@ public class CStoryboardPlayer {
 	 */
 	private void playStoryboard() {
 		CSequence sequence						= null;
+		CSwipePoint swipePoint					= null;
 		HashMap<String, CSequence> mapSequences = m_storyboard.getSequences();
 		HashMap<String, CStoryEvent> mapAsync	= null;
 		HashMap<String, CStoryEvent> mapSync	= null;
 		int nSeqCount 							= mapSequences.size();
 		int nASyncCount							= 0;
 		int nSyncCount							= 0;
+		int nSwipePointIndex1					= 0;
+		int nSwipePointIndex2					= 0;
 		long lngLastEvent						= 0;
 		
 		try {
@@ -145,66 +151,88 @@ public class CStoryboardPlayer {
 																	  			  Short.valueOf(touchEvent.getY())));
 						}
 						else if (mapSync.get(String.valueOf(nSync)) instanceof CSwipe) {
-							CSwipe switchEvent = (CSwipe) mapSync.get(String.valueOf(nSync));
+							CSwipe swipeEvent 	= (CSwipe) mapSync.get(String.valueOf(nSync));
+							int nPointCount		= swipeEvent.getMapPoints().size();
 							
-							// wait delay
-							CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " waiting delay " + switchEvent.getDELAY());
-							while ((System.currentTimeMillis() - m_lngTimestamp) < Integer.valueOf(switchEvent.getDura())) {}
-							m_lngTimestamp = System.currentTimeMillis();
-							
-							// send message for duration
-							m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(switchEvent.getBtn()), 
-																	  			  Short.valueOf(switchEvent.getX1()),
-																	  			  Short.valueOf(switchEvent.getY1())));
-							
-							// send interpolation during duration
-							float fAlpha 	= 0.0f;
-							float fx 		= 0.0f;
-							float fy 		= 0.0f;
-							int	nCount		= 0;
-							lngLastEvent = m_lngTimestamp;
-							while ((System.currentTimeMillis() - m_lngTimestamp) < Integer.valueOf(switchEvent.getDura())) {
-								nCount++;
+							// At least 2 CSqipePoints for start and end
+							if (nPointCount >= 2) {
+								// wait delay
+								CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " waiting delay " + swipeEvent.getDELAY());
+								while ((System.currentTimeMillis() - m_lngTimestamp) < Integer.valueOf(swipeEvent.getDura())) {}
+								m_lngTimestamp = System.currentTimeMillis();
 								
-								if (nCount < 2) {
-									// send first event after initial just after first because of slidebug
-									fAlpha = (float)(System.currentTimeMillis() - m_lngTimestamp) / Float.valueOf(switchEvent.getDura());
-									fx = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getX1()) + 
-											fAlpha * (float)Short.valueOf(switchEvent.getX2()));
-									fy = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getY1()) + 
-											fAlpha * (float)Short.valueOf(switchEvent.getY2()));
+								// get first SwipePoint
+								swipePoint = swipeEvent.getMapPoints().get("1");
+								
+								// send message for duration
+								m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(swipeEvent.getBtn()), 
+																		  			  Short.valueOf(swipePoint.getX()),
+																		  			  Short.valueOf(swipePoint.getY())));
+								
+								// send interpolation during duration
+								float fAlpha 	= 0.0f;
+								float fx 		= 0.0f;
+								float fy 		= 0.0f;
+								int	nCount		= 0;
+								lngLastEvent = m_lngTimestamp;
+								while ((System.currentTimeMillis() - m_lngTimestamp) < Integer.valueOf(swipeEvent.getDura())) {
+									nCount++;
 									
-									CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " interpolation x:" + fx + " y:" + fy);
-									
-									m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(switchEvent.getBtn()), 
-																			  			  (short)fx,
-																			  			  (short)fy));
-									lngLastEvent = System.currentTimeMillis();
-								} else if ((System.currentTimeMillis() - lngLastEvent) > 25) {
-									// send every 25ms an interpolated message (50 and 100 are too much!!!)
-									fAlpha = (float)(System.currentTimeMillis() - m_lngTimestamp) / Float.valueOf(switchEvent.getDura());
-									fx = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getX1()) + 
-											fAlpha * (float)Short.valueOf(switchEvent.getX2()));
-									fy = ((1.0f - fAlpha) * (float)Short.valueOf(switchEvent.getY1()) + 
-											fAlpha * (float)Short.valueOf(switchEvent.getY2()));
-									
-									CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " interpolation x:" + fx + " y:" + fy);
-									
-									m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(switchEvent.getBtn()), 
-																			  			  (short)fx,
-																			  			  (short)fy));
-									lngLastEvent = System.currentTimeMillis();
+									if ((nCount < 2) || (System.currentTimeMillis() - lngLastEvent) > MIN_EVENT_DELAY) {
+										// send every <MIN_EVENT_DELAY> (25ms) an interpolated message (50 and 100 are too much!!!)
+										
+										// get swipepoint (=(Delta/Dura) * (Count-1))
+										if (Integer.valueOf(swipeEvent.getDura()) > 0) {
+											nSwipePointIndex1 = Integer.valueOf(((int)(System.currentTimeMillis() - m_lngTimestamp) / Integer.valueOf(swipeEvent.getDura())) *
+																(nPointCount - 1));
+											nSwipePointIndex2 = nSwipePointIndex1 + 1;
+											
+											if ((nSwipePointIndex1 < nPointCount) &&
+												(nSwipePointIndex2 < nPointCount)) {
+												nSwipePointIndex1++;
+												nSwipePointIndex2++;
+											}
+										}
+										else {
+											// div/0
+											nSwipePointIndex1 = 1;
+											nSwipePointIndex2 = 2;
+										}
+										
+										fAlpha = (float)(System.currentTimeMillis() - m_lngTimestamp) / Float.valueOf(swipeEvent.getDura());
+										swipePoint = swipeEvent.getMapPoints().get("1");
+										fx = ((1.0f - fAlpha) * (float)Short.valueOf(swipeEvent.getMapPoints().get(String.valueOf(nSwipePointIndex1)).getX()) + 
+												fAlpha * (float)Short.valueOf(swipeEvent.getMapPoints().get(String.valueOf(nSwipePointIndex2)).getX()));
+										fy = ((1.0f - fAlpha) * (float)Short.valueOf(swipeEvent.getMapPoints().get(String.valueOf(nSwipePointIndex1)).getY()) + 
+												fAlpha * (float)Short.valueOf(swipeEvent.getMapPoints().get(String.valueOf(nSwipePointIndex2)).getY()));
+										
+										CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " interpolation x:" + fx + " y:" + fy);
+										
+										m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(swipeEvent.getBtn()), 
+																				  			  (short)fx,
+																				  			  (short)fy));
+										lngLastEvent = System.currentTimeMillis();
+									}
 								}
+								
+								// get last SwipePoint
+								swipePoint = swipeEvent.getMapPoints().get(String.valueOf(nPointCount));
+								
+								m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(swipeEvent.getBtn()), 
+																					  Short.valueOf(swipePoint.getX()),
+																					  Short.valueOf(swipePoint.getY())));
+								m_lngTimestamp = System.currentTimeMillis();
+								
+								// send button released
+								m_workingProtocol.sendMessage(new PointerEventMessage((byte) 0, 
+																					  Short.valueOf(swipePoint.getX()),
+																					  Short.valueOf(swipePoint.getY())));
 							}
-							m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(switchEvent.getBtn()), 
-																	  			  Short.valueOf(switchEvent.getX2()),
-																	  			  Short.valueOf(switchEvent.getY2())));
-							m_lngTimestamp = System.currentTimeMillis();
-							
-							// send button released
-							m_workingProtocol.sendMessage(new PointerEventMessage((byte) 0, 
-																	  			  Short.valueOf(switchEvent.getX2()),
-																	  			  Short.valueOf(switchEvent.getY2())));
+							else {
+								// if not enough SwipePoints --> stop playing storyboard
+								CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent.nPointCount = " + nPointCount + "; not enough SwipePoints");
+								this.stop();
+							}
 						}
 					}
 				}

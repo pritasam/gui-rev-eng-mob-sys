@@ -13,6 +13,7 @@ import de.ostfalia.mockup.datamodel.storyboard.CKey;
 import de.ostfalia.mockup.datamodel.storyboard.CSequence;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
 import de.ostfalia.mockup.datamodel.storyboard.CSwipe;
+import de.ostfalia.mockup.datamodel.storyboard.CSwipePoint;
 import de.ostfalia.mockup.datamodel.storyboard.CTouch;
 
 /**
@@ -48,6 +49,7 @@ public class CXMLStoryboardReader extends CXMLReader {
 		NodeList nodeLstSequences 	= null;
 		NodeList nodeLstASyncs		= null;
 		NodeList nodeLstASyncsChild	= null;
+		NodeList nodeSwipePoints	= null;
 		
 		// Storyboard
 		nodeLstRoot = m_xmlDoc.getElementsByTagName(m_emtRoot.getNodeName());
@@ -98,13 +100,25 @@ public class CXMLStoryboardReader extends CXMLReader {
 																			   attrMap.getNamedItem("delay").getNodeValue()));
 									}
 									else if (nodeEmtAsync.getNodeName() == "Swipe") {
-										this.m_sequence.addAsyncEvent(new CSwipe(attrMap.getNamedItem("btn").getNodeValue(),
-																	  		     attrMap.getNamedItem("x1").getNodeValue(), 
-																			     attrMap.getNamedItem("y1").getNodeValue(), 
-																			     attrMap.getNamedItem("x2").getNodeValue(), 
-																			     attrMap.getNamedItem("y2").getNodeValue(), 
-																			     attrMap.getNamedItem("dura").getNodeValue(),
-																			     attrMap.getNamedItem("delay").getNodeValue()));
+										CSwipe swp = new CSwipe(attrMap.getNamedItem("btn").getNodeValue(),
+											     attrMap.getNamedItem("dura").getNodeValue(),
+											     attrMap.getNamedItem("delay").getNodeValue());
+										
+										// get CSwipePoints
+										nodeSwipePoints = nodeEmtAsync.getChildNodes();
+										for (int nSwipePoints = 0; nSwipePoints < nodeSwipePoints.getLength(); nSwipePoints++) {
+											Node nodeEmtSwipePoint = nodeSwipePoints.item(nSwipePoints);
+											
+											// only level1 Childs (<...>)
+											if (nodeEmtSwipePoint.getNodeType() == 1) {
+												// get attributes
+												attrMap = nodeEmtSwipePoint.getAttributes();
+												swp.addtMapPoint(new CSwipePoint(attrMap.getNamedItem("x").getNodeValue(), 
+																			     attrMap.getNamedItem("y").getNodeValue()));
+											}
+										}
+										
+										this.m_sequence.addAsyncEvent(swp);
 									}
 								}
 							}
@@ -133,13 +147,25 @@ public class CXMLStoryboardReader extends CXMLReader {
 																			    attrMap.getNamedItem("delay").getNodeValue()));
 									}
 									else if (nodeEmtSync.getNodeName() == "Swipe") {
-										this.m_sequence.addSyncEvent(new CSwipe(attrMap.getNamedItem("btn").getNodeValue(),
-																	  		    attrMap.getNamedItem("x1").getNodeValue(), 
-																			    attrMap.getNamedItem("y1").getNodeValue(), 
-																			    attrMap.getNamedItem("x2").getNodeValue(), 
-																			    attrMap.getNamedItem("y2").getNodeValue(), 
-																			    attrMap.getNamedItem("dura").getNodeValue(),
-																			    attrMap.getNamedItem("delay").getNodeValue()));
+										CSwipe swp = new CSwipe(attrMap.getNamedItem("btn").getNodeValue(),
+											     attrMap.getNamedItem("dura").getNodeValue(),
+											     attrMap.getNamedItem("delay").getNodeValue());
+										
+										// get CSwipePoints
+										nodeSwipePoints = nodeEmtSync.getChildNodes();
+										for (int nSwipePoints = 0; nSwipePoints < nodeSwipePoints.getLength(); nSwipePoints++) {
+											Node nodeEmtSwipePoint = nodeSwipePoints.item(nSwipePoints);
+											
+											// only level1 Childs (<...>)
+											if (nodeEmtSwipePoint.getNodeType() == 1) {
+												// get attributes
+												attrMap = nodeEmtSwipePoint.getAttributes();
+												swp.addtMapPoint(new CSwipePoint(attrMap.getNamedItem("x").getNodeValue(), 
+																			     attrMap.getNamedItem("y").getNodeValue()));
+											}
+										}
+										
+										this.m_sequence.addSyncEvent(swp);
 									}
 								}
 							}

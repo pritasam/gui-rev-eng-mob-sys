@@ -151,6 +151,7 @@ public abstract class CGuiExtender {
 						
 						// start playing story
 						m_storyPlayer.play();
+						CInputRecorder.getInst().setToggleStoryPlaying();
 						btnStoryboard.setSelected(false);
 					}
 				}

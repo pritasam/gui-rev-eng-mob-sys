@@ -3,6 +3,9 @@
  */
 package de.ostfalia.mockup.datamodel.storyboard;
 
+import java.awt.Point;
+import java.util.HashMap;
+
 /**
  * @author O. Laudi
  *
@@ -10,12 +13,9 @@ package de.ostfalia.mockup.datamodel.storyboard;
 public class CSwipe extends CStoryEvent{
 	
 	// Member
-	protected String	m_strbtn = "";
-	protected String	m_strX1 = "";
-	protected String	m_strY1 = "";
-	protected String	m_strX2 = "";
-	protected String	m_strY2 = "";
-	protected String	m_strDura = "";
+	protected String						m_strbtn = "";
+	protected String						m_strDura = "";
+	protected HashMap<String, CSwipePoint>	m_mapPoints = null;
 		
 	/**
 	 * @param m_strbtn
@@ -26,15 +26,11 @@ public class CSwipe extends CStoryEvent{
 	 * @param m_strDura
 	 * @param m_strDELAY
 	 */
-	public CSwipe(String strbtn, String strX1,
-			String strY1, String strX2, String strY2, String strDura, String strDELAY) {
+	public CSwipe(String strbtn, String strDura, String strDELAY) {
 		super(strDELAY);
 		this.m_strbtn = strbtn;
-		this.m_strX1 = strX1;
-		this.m_strY1 = strY1;
-		this.m_strX2 = strX2;
-		this.m_strY2 = strY2;
 		this.m_strDura = strDura;
+		this.m_mapPoints = new HashMap<String, CSwipePoint>();
 	}
 
 	/**
@@ -44,78 +40,12 @@ public class CSwipe extends CStoryEvent{
 		return m_strbtn;
 	}
 
-
 	/**
 	 * @param m_strbtn the m_strbtn to set
 	 */
 	public void setBtn(String strbtn) {
 		this.m_strbtn = strbtn;
 	}
-
-
-	/**
-	 * @return the m_strX1
-	 */
-	public String getX1() {
-		return m_strX1;
-	}
-
-
-	/**
-	 * @param m_strX1 the m_strX1 to set
-	 */
-	public void setX1(String strX1) {
-		this.m_strX1 = strX1;
-	}
-
-
-	/**
-	 * @return the m_strY1
-	 */
-	public String getY1() {
-		return m_strY1;
-	}
-
-
-	/**
-	 * @param m_strY1 the m_strY1 to set
-	 */
-	public void setY1(String strY1) {
-		this.m_strY1 = strY1;
-	}
-
-
-	/**
-	 * @return the m_strX2
-	 */
-	public String getX2() {
-		return m_strX2;
-	}
-
-
-	/**
-	 * @param m_strX2 the m_strX2 to set
-	 */
-	public void setX2(String strX2) {
-		this.m_strX2 = strX2;
-	}
-
-
-	/**
-	 * @return the m_strY2
-	 */
-	public String getY2() {
-		return m_strY2;
-	}
-
-
-	/**
-	 * @param m_strY2 the m_strY2 to set
-	 */
-	public void setY2(String strY2) {
-		this.m_strY2 = strY2;
-	}
-
 
 	/**
 	 * @return the m_strDura
@@ -132,6 +62,24 @@ public class CSwipe extends CStoryEvent{
 		this.m_strDura = strDura;
 	}
 
+	/**
+	 * @return the m_mapPoints
+	 */
+	public HashMap<String, CSwipePoint> getMapPoints() {
+		return m_mapPoints;
+	}
+
+	/**
+	 * adds a CSwiprPoint to the CSwipe-Event
+	 * @param swipePoint
+	 */
+	public void addtMapPoint(CSwipePoint swipePoint) {
+		// get next String-ID
+		int nID = this.m_mapPoints.size() + 1;
+		swipePoint.setID(String.valueOf(nID));
+		this.m_mapPoints.put(String.valueOf(nID), swipePoint);
+	}
+	
 
 	@Override
 	public String getXMLString(int nIterationDepth) {
@@ -143,12 +91,20 @@ public class CSwipe extends CStoryEvent{
 		
 		strResult += strSpace + "<Swipe id=\"" + this.m_strID + "\" " +
 									  "btn=\"" + this.m_strbtn + "\" " + 
-									  "x1=\"" + this.m_strX1 + "\" " + 
-									  "y1=\"" + this.m_strY1 + "\" " + 
-									  "x2=\"" + this.m_strX2 + "\" " + 
-									  "y2=\"" + this.m_strY2 + "\" " + 
 									  "dura=\"" + this.m_strDura + "\" " +
-									  "delay=\"" + this.m_strDELAY + "\"></Swipe>\n";
+									  "delay=\"" + this.m_strDELAY + "\">\n";
+		// insert CSwipePoint 
+		nIterationDepth++;
+		for (int nPoint = 0; nPoint < m_mapPoints.size(); nPoint++) {
+			strResult += m_mapPoints.get(String.valueOf(nPoint + 1)).getXMLString(nIterationDepth);
+		}
+		
+		nIterationDepth--;
+		strSpace 	= "";
+		for (int i = 0; i < nIterationDepth; i++)
+			strSpace += m_XMLSPACE;
+		
+		strResult += strSpace + "</Swipe>\n";
 		
 		return strResult;
 	}

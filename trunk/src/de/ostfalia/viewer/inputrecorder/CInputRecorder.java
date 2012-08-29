@@ -19,6 +19,7 @@ import de.ostfalia.mockup.datamodel.storyboard.CKey;
 import de.ostfalia.mockup.datamodel.storyboard.CSequence;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
 import de.ostfalia.mockup.datamodel.storyboard.CSwipe;
+import de.ostfalia.mockup.datamodel.storyboard.CSwipePoint;
 import de.ostfalia.mockup.datamodel.storyboard.CTouch;
 import de.ostfalia.viewer.logger.CLogger;
 
@@ -192,13 +193,14 @@ public class CInputRecorder{
 					if ((m_x != ((PointerEventMessage)message).getX()) || 
 						(m_y != ((PointerEventMessage)message).getY())) {
 						// swipe
-						m_sequence.addSyncEvent(new CSwipe(String.valueOf(m_buttonMask), 
-								String.valueOf(m_x), 
-								String.valueOf(m_y), 
-								String.valueOf(((PointerEventMessage)message).getX()), 
-								String.valueOf(((PointerEventMessage)message).getY()), 
-								String.valueOf(System.currentTimeMillis() - m_lTimeStamp),
-								String.valueOf(m_lngLastEventEnd)));
+						CSwipe swp = new CSwipe(String.valueOf(m_buttonMask), 
+												String.valueOf(System.currentTimeMillis() - m_lTimeStamp),
+												String.valueOf(m_lngLastEventEnd));
+						swp.addtMapPoint(new CSwipePoint(String.valueOf(m_x), String.valueOf(m_y)));
+						swp.addtMapPoint(new CSwipePoint(String.valueOf(((PointerEventMessage)message).getX()), 
+														 String.valueOf(((PointerEventMessage)message).getY())));
+						
+						m_sequence.addSyncEvent(swp);
 					}
 					else {
 						// touch

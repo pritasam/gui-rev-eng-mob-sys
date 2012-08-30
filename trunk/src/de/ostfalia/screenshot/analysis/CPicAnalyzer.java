@@ -60,10 +60,17 @@ public class CPicAnalyzer {
 	 * @return
 	 */
 	public Rectangle getSurroundedRect(Point pPoint) {
-		
+		// CannyEdge-Filter
 		BufferedImage biEdgeImage = processCannyEdgeDetection();
-		
 		saveBufferedImage(biEdgeImage, this.m_strImageFile + "canny.png");
+		
+//		// HoughTransformation
+//		BufferedImage biHoughImage = processHoughTransform(biEdgeImage);
+//		saveBufferedImage(biHoughImage, this.m_strImageFile + "Hough.png");
+		
+		// Detect buttons
+		BufferedImage biHoughImage = processButtonDetector(biEdgeImage, pPoint);
+		saveBufferedImage(biHoughImage, this.m_strImageFile + "ButtonDetect.png");
 		
 		return null;
 	}
@@ -73,19 +80,48 @@ public class CPicAnalyzer {
 	 * @return
 	 */
 	private BufferedImage processCannyEdgeDetection() {
-		//create the detector 
+		// create the detector 
 		CannyEdgeDetector detector = new CannyEdgeDetector(); 
 		
-		//adjust its parameters as desired 
+		// adjust its parameters as desired 
 //		detector.setLowThreshold(0.5f); 
 //		detector.setHighThreshold(1f); 
 		detector.setLowThreshold(4f); 
 		detector.setHighThreshold(8f);
 		
-		//apply it to an image 
+		// apply it to an image 
 		detector.setSourceImage(this.m_biSourceImage); 
 		detector.process(); 
 		return detector.getEdgesImage();
+	}
+	
+	/**
+	 * HoughTransformation Algo
+	 * @param biSource
+	 * @return
+	 */
+	private BufferedImage processHoughTransform(BufferedImage biSource) {
+		// create HoughTransformator
+		HoughTransform hTrans	= new HoughTransform();
+		
+		return hTrans.process(biSource);
+		
+//		HoughLines hTrans	= new HoughLines();
+//		return hTrans.process(biSource);
+		
+	}
+	
+	/**
+	 * ButtonDetection for a given Point
+	 * @param biSource
+	 * @param pPoint
+	 * @return
+	 */
+	private BufferedImage processButtonDetector(BufferedImage biSource, Point pPoint) {
+		// create CButtonDetector
+		CButtonDetector buttonDetect	= new CButtonDetector();
+		
+		return buttonDetect.process(biSource, pPoint);
 	}
 	
 	/**

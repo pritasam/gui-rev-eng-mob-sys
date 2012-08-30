@@ -74,8 +74,6 @@ public class CannyEdgeDetector {
 		lowThreshold = 2.5f;
 		highThreshold = 7.5f;
 //		gaussianKernelRadius = 2f;
-//		gaussianKernelWidth = 16;
-//		contrastNormalized = false;
 		gaussianKernelRadius = 1f;
 		gaussianKernelWidth = 16;
 		contrastNormalized = false;

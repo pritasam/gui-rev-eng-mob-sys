@@ -19,7 +19,7 @@ import de.ostfalia.viewer.logger.CLogger;
  */
 public class CStoryboardPlayer {
 	// Constant
-	private final int				MIN_EVENT_DELAY = 25;
+	private final static int		MIN_EVENT_DELAY = 25;
 	// Member
 	private CStoryboard				m_storyboard;
 	private Protocol				m_workingProtocol;

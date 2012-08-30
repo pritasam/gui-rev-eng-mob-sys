@@ -25,7 +25,9 @@ import de.ostfalia.mockup.datamodel.mock.CMockStart;
 import de.ostfalia.mockup.datamodel.mock.CMockStartLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
 import de.ostfalia.mockup.datamodel.storyboard.CSequence;
+import de.ostfalia.mockup.datamodel.storyboard.CStoryEvent;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
+import de.ostfalia.mockup.datamodel.storyboard.CTouch;
 import de.ostfalia.screenshot.analysis.CPicAnalyzer;
 
 /**
@@ -189,10 +191,34 @@ public class CMockupGenerator {
 				
 				// get first Value in List
 				if (lstEmt != null) {
-					if (lstEmt.size() > 0) {
-						CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
-																   "scr_" + lstEmt.get(0) + ".png");
-						analyze.getSurroundedRect(new Point(1, 1));
+					// iterate through valueList
+					for (String strPicID : lstEmt) {
+						// check sequences with strPicId as startID
+						if (m_storyboard != null) {
+							for (int nSeq = 0; nSeq < m_storyboard.getSequences().size(); nSeq++) {
+								CSequence seq = m_storyboard.getSequences().get(String.valueOf(nSeq + 1));
+								// only if startID of Sequence fits strPicID
+								if (seq.getSTARTID().equals(strPicID)) {
+									//TODO auch für ASYNCs
+									// Check for each Screenshot, if there is a click or swipe event
+									for (int nSync = 0; nSync < seq.getMapSYNC().size(); nSync++) {
+										CStoryEvent storyEvent = seq.getMapSYNC().get(String.valueOf(nSync + 1));
+										
+										if (storyEvent instanceof CTouch) {
+											if (lstEmt.size() > 0) {
+												CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
+																						   "scr_" + strPicID + ".png");
+												
+												// testdata
+												analyze.getSurroundedRect(new Point(Integer.valueOf(((CTouch)storyEvent).getX()), 
+																					Integer.valueOf(((CTouch)storyEvent).getY())));
+											}
+										}
+										//TODO Swipe?
+									}
+								}
+							}
+						}
 					}
 				}
 			}

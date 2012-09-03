@@ -1,6 +1,8 @@
 <!ELEMENT Storyboard (Sequence*)>
 <!ATTLIST Storyboard
-	id CDATA #REQUIRED>
+	id CDATA #REQUIRED
+	width CDATA #REQUIRED
+	height CDATA #REQUIRED>
 
 <!ELEMENT Sequence (Async?, Sync?)>
 <!ATTLIST Sequence

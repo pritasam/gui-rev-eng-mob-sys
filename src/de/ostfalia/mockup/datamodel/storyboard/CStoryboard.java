@@ -24,16 +24,22 @@ import java.util.HashMap;
  */
 public class CStoryboard extends CXMLStoryboardEmt{
 	
-	protected String						m_strID = "";
+	protected String						m_strID 	= "";
+	protected String						m_strWidth 	= "";
+	protected String						m_strHeight	= "";
 
 	protected HashMap<String, CSequence>	m_mapSequences = null;
 	
 	/**
-	 * @param m_strID
+	 * 
+	 * @param nWidth
+	 * @param nHeight
 	 */
-	public CStoryboard() {
+	public CStoryboard(int nWidth, int nHeight) {
 		super();
-		this.m_strID = "1";
+		this.m_strID 		= "1";
+		this.m_strWidth		= String.valueOf(nWidth);
+		this.m_strHeight	= String.valueOf(nHeight);
 		this.m_mapSequences = new HashMap<String, CSequence>();
 	}
 	
@@ -84,11 +90,42 @@ public class CStoryboard extends CXMLStoryboardEmt{
 	}
 	
 	/**
+	 * @return the m_strWidth
+	 */
+	public String getWidth() {
+		return m_strWidth;
+	}
+
+	/**
+	 * @param m_strWidth the m_strWidth to set
+	 */
+	public void setWidth(String strWidth) {
+		this.m_strWidth = strWidth;
+	}
+
+	/**
+	 * @return the m_strHeight
+	 */
+	public String getHeight() {
+		return m_strHeight;
+	}
+
+	/**
+	 * @param m_strHeight the m_strHeight to set
+	 */
+	public void setHeight(String strHeight) {
+		this.m_strHeight = strHeight;
+	}
+
+	/**
 	 * sets the Storyboardname
 	 * @param strID
 	 */
-	public void finish(String strID) {
-		this.m_strID = strID;
+	public void finish(String strID, int nWidth, int nHeight) {
+		this.m_strID 		= strID;
+		this.m_strWidth		= String.valueOf(nWidth);
+		this.m_strHeight	= String.valueOf(nHeight);
+		
 		// save as xml-file
 		saveAsXML();
 	}
@@ -169,7 +206,9 @@ public class CStoryboard extends CXMLStoryboardEmt{
 		for (int i = 0; i < nIterationDepth; i++)
 			strSpace += m_XMLSPACE;
 		
-		strResult += strSpace + "<Storyboard id=\"" + this.m_strID + "\">\n";
+		strResult += strSpace + "<Storyboard id=\"" + this.m_strID + 
+										"\" width=\"" + this.m_strWidth + 
+										"\" height=\"" + this.m_strHeight + "\">\n";
 		
 		// add all sequences
 		nIterationDepth++;

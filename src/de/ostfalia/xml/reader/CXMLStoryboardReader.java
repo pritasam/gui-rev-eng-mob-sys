@@ -57,8 +57,10 @@ public class CXMLStoryboardReader extends CXMLReader {
 			Node nodeEmtRoot = nodeLstRoot.item(nEmtRoot);
 			// get attributes
 			attrMap = nodeEmtRoot.getAttributes();
-			this.m_storyboard = new CStoryboard();
+			this.m_storyboard = new CStoryboard(0, 0);
 			this.m_storyboard.setID(attrMap.getNamedItem("id").getNodeValue());
+			this.m_storyboard.setWidth(attrMap.getNamedItem("width").getNodeValue());
+			this.m_storyboard.setHeight(attrMap.getNamedItem("height").getNodeValue());
 			
 			// List of Sequences
 			nodeLstSequences = m_xmlDoc.getElementsByTagName("Sequence");

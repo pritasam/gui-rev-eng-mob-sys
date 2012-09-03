@@ -264,28 +264,28 @@ public class ReceiverTask implements Runnable {
 				 * after full bufferrefresh check, if compare is needed and check for differences
 				 */
 				
-				if (CInputRecorder.getInst().isRecord()) {
-					if (CInputRecorder.getInst().isEventMessage() && m_isSaved) {
-						// if Pointer- or KeyEventMessage, then save time
-						m_lTime = System.currentTimeMillis();
-						m_isSaved = false;
-						CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isEventMessage()");
-					}
-					
-					if (!m_isSaved) {
-						m_isSaved = true;
-						CInputRecorder.getInst().processImageCompare(renderer);
-						CInputRecorder.getInst().resetEventMessage();
-						// Equal pics found
-						CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): Timeout after 2 seconds!");
-						CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
-						// get deltaimage
-						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
-							CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): save different " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
-//							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
-						}
-					}
-				}
+//				if (CInputRecorder.getInst().isRecord()) {
+//					if (CInputRecorder.getInst().isEventMessage() && m_isSaved) {
+//						// if Pointer- or KeyEventMessage, then save time
+//						m_lTime = System.currentTimeMillis();
+//						m_isSaved = false;
+//						CLogger.getInst(CLogger.SYS_OUT).writeline("CVNCServerFilter::framebufferUpdateMessage(): isEventMessage()");
+//					}
+//					
+//					if (!m_isSaved) {
+//						m_isSaved = true;
+//						CInputRecorder.getInst().processImageCompare(renderer);
+//						CInputRecorder.getInst().resetEventMessage();
+//						// Equal pics found
+//						CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): Timeout after 2 seconds!");
+//						CInputRecorder.getInst().getImageCmp().saveAsPicFiles();
+//						// get deltaimage
+//						if (CInputRecorder.getInst().getImageCmp().getDeltaRegion() != null) {
+//							CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): save different " + CInputRecorder.getInst().getImageCmp().getDeltaRegion().toString());
+////							CInputRecorder.getInst().getImageCmp().getDeltaRegion().saveAsPicFile(System.currentTimeMillis());
+//						}
+//					}
+//				}
 
 				context.sendMessage(fullscreenFbUpdateIncrementalRequest);
 				CLogger.getInst(CLogger.SYS_OUT).writeline("ReceiverTask::framebufferUpdateMessage(): sendMessage " + fullscreenFbUpdateIncrementalRequest.toString());

@@ -16,8 +16,8 @@ import java.awt.image.BufferedImage;
 public class CButtonDetector {
 	
 	// statics
-	private final static int	MIN_BUTTON_SIZE		= 40;	// Min. Buttonsize = MIN_BUTTON_SIZE x MIN_BUTTON_SIZE
-	private final static int	MAX_PIXEL_DEVIATION	= 2;	// Pixel to look right and left from rootline
+	private final static int	MIN_BUTTON_SIZE		= 35;	// Min. Buttonsize = MIN_BUTTON_SIZE x MIN_BUTTON_SIZE
+	private final static int	MAX_PIXEL_DEVIATION	= 1;	// Pixel to look right and left from rootline
 	private final static int	ORIENTATION_LEFT	= 1;
 	private final static int	ORIENTATION_RIGHT	= 2;
 	private final static int	ORIENTATION_TOP		= 3;
@@ -52,8 +52,6 @@ public class CButtonDetector {
         										biSource.copyData(biSource.getRaster()),
 						        				biSource.getColorModel().isAlphaPremultiplied(), 
 						        				null);
-        int nWidth	= biSource.getWidth();
-        int nHeight	= biSource.getHeight();
         
         // Left
         m_leftBorder 	= getLine(ORIENTATION_LEFT, pPoint, biOutput);
@@ -150,7 +148,7 @@ public class CButtonDetector {
 		 *              | nRightMulti
 		 *              V
 		 */
-		
+
 		switch (nORIENTATION) {
 		case ORIENTATION_LEFT:
 		case ORIENTATION_RIGHT:
@@ -291,10 +289,6 @@ public class CButtonDetector {
 	 * @return
 	 */
 	public Rectangle getProcessedRectangle(BufferedImage biOutput) {
-		int nX		= 0;
-		int nY		= 0;
-		int nWidth	= 0;
-		int nHeight	= 0;
 		
 		// Check for Point(0, 0) and set them to imageboundaries
 		if ((m_leftBorder.getX1() == 0) && (m_leftBorder.getX2() == 0) &&

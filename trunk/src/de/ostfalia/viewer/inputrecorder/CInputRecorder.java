@@ -131,7 +131,7 @@ public class CInputRecorder{
 	 */
 	public void initStoryboard() {
 		m_sequence			= null;
-		m_storyboard 		= new CStoryboard();
+		m_storyboard 		= new CStoryboard(0, 0);
 		m_lTimeStamp		= System.currentTimeMillis();
 		m_lngLastSeqBegin	= 0;
 		m_lngLastEventEnd	= 0;
@@ -332,7 +332,9 @@ public class CInputRecorder{
 			}
 		}
 		
-		this.m_storyboard.finish(strID);
+		this.m_storyboard.finish(strID, 
+				receiverTask.getRenderer().getWidth(), 
+				receiverTask.getRenderer().getHeight());
 		
 		return isSuccess;
 	}

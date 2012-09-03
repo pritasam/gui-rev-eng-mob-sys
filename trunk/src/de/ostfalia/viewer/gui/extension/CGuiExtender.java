@@ -114,6 +114,7 @@ public abstract class CGuiExtender {
 		btnStoryboard.setSelectedIcon(Utils.getButtonIcon("storyboard"));
 		btnStoryboard.setMargin(buttonsMargin);
 		btnStoryboard.setAlignmentX(Component.RIGHT_ALIGNMENT);
+		btnStoryboard.setName("StoryboardPlay");
 		buttonBar.add(btnStoryboard);
 		btnStoryboard.addActionListener(new ActionListener() {
 			@Override
@@ -149,8 +150,23 @@ public abstract class CGuiExtender {
 						CXMLStoryboardReader storyReader = new CXMLStoryboardReader(fc.getSelectedFile());
 						m_storyPlayer = new CStoryboardPlayer(storyReader.getStoryboard(), m_workingProtocol);
 						
-						// start playing story
-						m_storyPlayer.play();
+						// Check, if displayresolution fits to the saved
+						int nWSaved	= Integer.valueOf(m_storyPlayer.getStoryboard().getWidth());
+						int nWExpect = m_workingProtocol.getReceiverTask().getRenderer().getWidth();
+						int nHSaved = Integer.valueOf(m_storyPlayer.getStoryboard().getHeight());
+						int nHExpect = m_workingProtocol.getReceiverTask().getRenderer().getHeight();
+						
+						if ((nWSaved != nWExpect) || (nHSaved != nHExpect)) {
+							// displayresolution doesn't fit
+							JOptionPane.showMessageDialog(null, "The storyboard expects the displayresolution " + nWSaved + "x" + nHSaved + ".\n\n" +
+																"Your current Resolution ist " + nWExpect + "x" + nHExpect + ".", 
+																"Incorrect displayresolution", JOptionPane.ERROR_MESSAGE);
+						}
+						else {
+							// start playing story
+							m_storyPlayer.play();
+						}
+						
 						CInputRecorder.getInst().setToggleStoryPlaying();
 						btnStoryboard.setSelected(false);
 					}

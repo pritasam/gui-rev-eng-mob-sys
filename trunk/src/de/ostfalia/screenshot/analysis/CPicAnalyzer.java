@@ -84,10 +84,10 @@ public class CPicAnalyzer {
 		CannyEdgeDetector detector = new CannyEdgeDetector(); 
 		
 		// adjust its parameters as desired 
-//		detector.setLowThreshold(0.5f); 
-//		detector.setHighThreshold(1f); 
-		detector.setLowThreshold(4f); 
-		detector.setHighThreshold(8f);
+		detector.setLowThreshold(3f); 
+		detector.setHighThreshold(6f); 
+//		detector.setLowThreshold(4f); 
+//		detector.setHighThreshold(8f);
 		
 		// apply it to an image 
 		detector.setSourceImage(this.m_biSourceImage); 

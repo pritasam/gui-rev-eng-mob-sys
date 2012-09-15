@@ -23,5 +23,13 @@ public class CMockApplication extends CXMLEmt {
 		this.addAttrib("name", strApplicationName);
 		this.addAttrib("nextRegionID", nNextRegionID.toString());
 	}
-
+	
+	/**
+	 * Gets the number of regions and add 1 to calculate the 
+	 * nextRegionID and refresh it.
+	 */
+	public void refreshNextRegionID() {
+		Integer nNextRegionID = getNumberOfRegions(this) + 1;
+		this.addAttrib("nextRegionID", nNextRegionID.toString());
+	}
 }

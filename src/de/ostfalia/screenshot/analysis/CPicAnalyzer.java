@@ -68,11 +68,12 @@ public class CPicAnalyzer {
 //		BufferedImage biHoughImage = processHoughTransform(biEdgeImage);
 //		saveBufferedImage(biHoughImage, this.m_strImageFile + "Hough.png");
 		
-		// Detect buttons
-		BufferedImage biHoughImage = processButtonDetector(biEdgeImage, pPoint);
+		// Detect button
+		Rectangle outRect = null;
+		BufferedImage biHoughImage = processButtonDetector(biEdgeImage, pPoint, outRect);
 		saveBufferedImage(biHoughImage, this.m_strImageFile + "ButtonDetect.png");
 		
-		return null;
+		return outRect;
 	}
 	
 	/**
@@ -117,11 +118,11 @@ public class CPicAnalyzer {
 	 * @param pPoint
 	 * @return
 	 */
-	private BufferedImage processButtonDetector(BufferedImage biSource, Point pPoint) {
+	private BufferedImage processButtonDetector(BufferedImage biSource, Point pPoint, Rectangle outRect) {
 		// create CButtonDetector
 		CButtonDetector buttonDetect	= new CButtonDetector();
 		
-		return buttonDetect.process(biSource, pPoint);
+		return buttonDetect.process(biSource, pPoint, outRect);
 	}
 	
 	/**

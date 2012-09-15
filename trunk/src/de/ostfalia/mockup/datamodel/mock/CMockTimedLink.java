@@ -15,12 +15,12 @@ public class CMockTimedLink extends CMockLink {
 	 * @param strTarget
 	 * @param dAfterSeconds
 	 */
-	public CMockTimedLink(String strID, String strTarget, Double dAfterSeconds) {
+	public CMockTimedLink(String strID, String strTarget, String strAfterSeconds) {
 		super(strID, strTarget);
 
 		// Add attribs
 		this.addAttrib("xsi:type", "mock:TimedLink");
-		this.addAttrib("afterSeconds", dAfterSeconds.toString());
+		this.addAttrib("afterSeconds", strAfterSeconds);
 	}
 
 }

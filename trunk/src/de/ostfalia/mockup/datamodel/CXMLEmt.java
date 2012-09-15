@@ -26,6 +26,7 @@ import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 
 import de.ostfalia.mockup.datamodel.diagram.CDiagramConsts;
 import de.ostfalia.mockup.datamodel.mock.CMockDocumentRoot;
+import de.ostfalia.mockup.datamodel.mock.CMockRegionLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
 
 /**
@@ -90,6 +91,41 @@ public class CXMLEmt {
 		}
 		
 		return isSuccess;
+	}
+	
+	/**
+	 * returns the value of a key in the attributemap 
+	 * or "" if value doesnt exists
+	 * @param strAttribName
+	 * @return
+	 */
+	public String getAttrib(String strAttribName) {
+		if (m_hmAttribMap.get(strAttribName) == null) {
+			return "";
+		}
+		else {
+			return m_hmAttribMap.get(strAttribName);
+		}
+	}
+	
+	/**
+	 * recursive method to calculate how many instances of
+	 * CMockRegionLink are in all childnodes.
+	 * @param emt
+	 * @return
+	 */
+	public int getNumberOfRegions(CXMLEmt emt) {
+		int nNumbers = 0;
+		for(CXMLEmt emtTmp : emt.getChildren()) {
+			if (emtTmp instanceof CMockRegionLink) {
+				nNumbers += 1;
+			}
+			else {
+				nNumbers += getNumberOfRegions(emtTmp);
+			}
+		}
+		
+		return nNumbers;
 	}
 	
 	/**

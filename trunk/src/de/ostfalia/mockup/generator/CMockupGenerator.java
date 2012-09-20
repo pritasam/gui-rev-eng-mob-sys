@@ -21,11 +21,14 @@ import javax.imageio.ImageIO;
 
 import de.ostfalia.mockup.datamodel.CXMLEmt;
 import de.ostfalia.mockup.datamodel.EnumKey;
+import de.ostfalia.mockup.datamodel.EnumLinkCategory;
 import de.ostfalia.mockup.datamodel.mock.CMockApplication;
 import de.ostfalia.mockup.datamodel.mock.CMockDocumentRoot;
 import de.ostfalia.mockup.datamodel.mock.CMockEnd;
 import de.ostfalia.mockup.datamodel.mock.CMockKeyLink;
 import de.ostfalia.mockup.datamodel.mock.CMockOverlayView;
+import de.ostfalia.mockup.datamodel.mock.CMockRectangleWithPosition;
+import de.ostfalia.mockup.datamodel.mock.CMockRegionLink;
 import de.ostfalia.mockup.datamodel.mock.CMockStart;
 import de.ostfalia.mockup.datamodel.mock.CMockStartLink;
 import de.ostfalia.mockup.datamodel.mock.CMockState;
@@ -36,6 +39,7 @@ import de.ostfalia.mockup.datamodel.storyboard.CSequence;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryEvent;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
 import de.ostfalia.mockup.datamodel.storyboard.CSwipe;
+import de.ostfalia.mockup.datamodel.storyboard.CSwipePoint;
 import de.ostfalia.mockup.datamodel.storyboard.CTouch;
 import de.ostfalia.screenshot.analysis.CPicAnalyzer;
 
@@ -89,7 +93,7 @@ public class CMockupGenerator {
 		createPicMap();
 		
 		// buttondetection
-		detectButtons();
+		//detectButtons();
 		
 		// create directed graph
 		isSuccess = buildMockTree();
@@ -246,6 +250,8 @@ public class CMockupGenerator {
 		CSequence sequence			= null;
 		boolean	isPicLandscape		= false;
 		boolean isStoryLandscape	= false;
+		boolean	isStateAvailable	= false;
+		int		nNextRegionID		= 0;
 		
 		m_mockTree = new CMockDocumentRoot();
 		CMockApplication mockApp 	= new CMockApplication(m_strDiagramName, 0);
@@ -257,9 +263,11 @@ public class CMockupGenerator {
 			sequence 	= m_storyboard.getSequences().get(String.valueOf(nSeq));
 			
 			// search for md5-state in seqInMockApp to refresh content
+			isStateAvailable	= false;
 			for (CXMLEmt cxmlEmt : seqInMockApp) {
 				if (cxmlEmt instanceof CMockState)  {
 					if (((CMockState)cxmlEmt).getAttrib("ID").equals(sequence.getSTARTID())) {
+						isStateAvailable	= true;
 						md5State = (CMockState)cxmlEmt;
 					}
 				}
@@ -341,6 +349,42 @@ public class CMockupGenerator {
 						// Touch or Swipe
 						if (sequence.getMapSYNC().get(strEmt) instanceof CSwipe) {
 							// ViewLink
+							//TODO
+							
+							// RegionLink + Region
+							CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
+									   "scr_" + sequence.getSTARTID() + ".png");
+
+							// Get Rectangle
+							Rectangle rectButton = null;
+							if (((CSwipe)sequence.getMapSYNC().get(strEmt)).getMapPoints().size() > 0) {
+								// Get first SwipePoint
+								CSwipePoint swpPnt = ((CSwipe)sequence.getMapSYNC().get(strEmt)).getMapPoints().get("1");
+								rectButton = analyze.getSurroundedRect(
+										new Point(Integer.valueOf(swpPnt.getX()), 
+												  Integer.valueOf(swpPnt.getY())));
+							}
+							else {
+								rectButton = new Rectangle(1, 1, 
+										Integer.valueOf(m_storyboard.getWidth()), Integer.valueOf(m_storyboard.getHeight()));
+							}
+							
+							// Create RegionLink
+							md5State.addChildNode(new CMockRegionLink("", 
+									sequence.getTARGETID(), 
+									EnumLinkCategory.SWIPE, 
+									String.valueOf(nNextRegionID)));
+							
+							// Create Region
+							md5State.addChildNode(new CMockRectangleWithPosition("Region_" + nNextRegionID,
+									rectButton.height, rectButton.width,
+									rectButton.x, rectButton.y));
+							
+							nNextRegionID++;
+						}
+						else if (sequence.getMapSYNC().get(strEmt) instanceof CTouch) {
+							// ViewLink
+							//TODO
 							
 							// RegionLink + Region
 							CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
@@ -350,9 +394,18 @@ public class CMockupGenerator {
 									new Point(Integer.valueOf(((CTouch)sequence.getMapSYNC().get(strEmt)).getX()), 
 											  Integer.valueOf(((CTouch)sequence.getMapSYNC().get(strEmt)).getY())));
 							
-						}
-						else if (sequence.getMapSYNC().get(strEmt) instanceof CTouch) {
+							// Create RegionLink
+							md5State.addChildNode(new CMockRegionLink("", 
+									sequence.getTARGETID(), 
+									EnumLinkCategory.SWIPE, 
+									String.valueOf(nNextRegionID)));
 							
+							// Create Region
+							md5State.addChildNode(new CMockRectangleWithPosition("Region_" + nNextRegionID,
+									rectButton.height, rectButton.width,
+									rectButton.x, rectButton.y));
+							
+							nNextRegionID++;
 						}
 					}
 					
@@ -367,45 +420,27 @@ public class CMockupGenerator {
 						sequence.getTARGETID(), sequence.getDELAY()));
 			}
 			
-			
-			
-			// RegionLink
-			// ViewLink
-			
-			//md5State.addChildNode(new CMOck)
-			
-			
-			// if transition = region, then also create region with nextRegionID
-			
 			// add state to List
-			
-			// if first seq, then add start
-			
-			// if last seq, then add end
-			
-			
+			if (!isStateAvailable) {
+				mockApp.addChildNode(md5State);
+			}
 			
 			if (nSeq == 1) {
-				// Start
+				// if first seq, then add start
 				CMockStart mockStart = new CMockStart("_Start", findMD5forID(sequence.getSTARTID()));
 				mockStart.addChildNode(new CMockStartLink("Start123", findMD5forID(sequence.getSTARTID())));
 				mockApp.addChildNode(mockStart);
 			}
 			else if (nSeq == m_storyboard.getSequences().size()) {
-				// End
+				// if last seq, then add end
 				CMockView mockView1 = new CMockView(findMD5forID(sequence.getTARGETID()), "images/" + sequence.getTARGETID() + ".png", false);
 				mockView1.addChildNode(new CMockKeyLink("KeyID_End", "_End", EnumKey.HOME));
 				mockApp.addChildNode(mockView1);
 				mockApp.addChildNode(new CMockEnd("_End"));
 			}
-			else {
-				CMockView mockView1 = new CMockView(findMD5forID(sequence.getTARGETID()), "images/" + sequence.getTARGETID() + ".png", false);
-				mockView1.addChildNode(new CMockKeyLink("KeyID123", "_End", EnumKey.HOME));
-				mockApp.addChildNode(mockView1);
-			}
 		}
 		
-		mockApp.refreshNextRegionID();
+		mockApp.setNextRegionID(nNextRegionID);
 		m_mockTree.addChildNode(mockApp);
 		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap);
 	}

@@ -323,6 +323,9 @@ public class Viewer extends JApplet implements Runnable, ISessionController, Win
 				surface = new Surface(workingProtocol);
 				settings.addListener(this);
 				containerFrame = createContainer();
+				// O. Laudi Start
+				CInputRecorder.getInst().setContainerFrame(containerFrame);
+				// O. Laud End
 
 				workingProtocol.startNormalHandling(this, surface, clipboardController);
 				tryAgain = false;

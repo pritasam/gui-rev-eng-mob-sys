@@ -14,6 +14,8 @@ import javax.imageio.stream.ImageInputStream;
 
 import com.glavsoft.drawing.Renderer;
 
+import de.ostfalia.viewer.logger.CLogger;
+
 /**
  * @author O. Laudi
  *
@@ -70,7 +72,8 @@ public class CPicAnalyzer {
 		
 		// Detect button
 		Rectangle outRect = null;
-		BufferedImage biHoughImage = processButtonDetector(biEdgeImage, pPoint, outRect);
+		BufferedImage biHoughImage = null;
+		outRect = processButtonDetector(biEdgeImage, pPoint, biHoughImage);
 		saveBufferedImage(biHoughImage, this.m_strImageFile + "ButtonDetect.png");
 		
 		return outRect;
@@ -118,11 +121,11 @@ public class CPicAnalyzer {
 	 * @param pPoint
 	 * @return
 	 */
-	private BufferedImage processButtonDetector(BufferedImage biSource, Point pPoint, Rectangle outRect) {
+	private Rectangle processButtonDetector(BufferedImage biSource, Point pPoint, BufferedImage biOut) {
 		// create CButtonDetector
 		CButtonDetector buttonDetect	= new CButtonDetector();
 		
-		return buttonDetect.process(biSource, pPoint, outRect);
+		return buttonDetect.process(biSource, pPoint, biOut);
 	}
 	
 	/**
@@ -131,11 +134,16 @@ public class CPicAnalyzer {
 	 * @param strOutputFile
 	 */
 	private void saveBufferedImage(BufferedImage bi, String strOutputFile) {
-		try {
-		    // retrieve image
-		    ImageIO.write(bi, "png", new File(strOutputFile));
-		} catch (IOException e) {
-		    e.printStackTrace();
+		if (bi != null) {
+			try {
+			    // retrieve image
+			    ImageIO.write(bi, "png", new File(strOutputFile));
+			} catch (IOException e) {
+			    e.printStackTrace();
+			}
+		}
+		else {
+			CLogger.getInst(CLogger.SYS_OUT).writeline("CPicAnalyzer::saveBufferedImage: BufferedImage is null.");
 		}
 	}
 }

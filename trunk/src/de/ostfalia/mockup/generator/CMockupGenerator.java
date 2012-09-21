@@ -42,6 +42,7 @@ import de.ostfalia.mockup.datamodel.storyboard.CSwipe;
 import de.ostfalia.mockup.datamodel.storyboard.CSwipePoint;
 import de.ostfalia.mockup.datamodel.storyboard.CTouch;
 import de.ostfalia.screenshot.analysis.CPicAnalyzer;
+import de.ostfalia.viewer.gui.extension.CProgressWnd;
 
 /**
  * @author O. Laudi
@@ -257,16 +258,19 @@ public class CMockupGenerator {
 		CMockApplication mockApp 	= new CMockApplication(m_strDiagramName, 0);
 		List<CXMLEmt> seqInMockApp	= mockApp.getChildren();
 		CMockState	md5State		= null;
+		CProgressWnd progress		= new CProgressWnd(m_storyboard.getSequences().size(), "Creating *.mockjar file");
+		progress.show();
 		
 		// iterate all sequences of storyboard
 		for (int nSeq = 1; nSeq <= m_storyboard.getSequences().size(); nSeq++) {
 			sequence 	= m_storyboard.getSequences().get(String.valueOf(nSeq));
+			md5State	= null;
 			
 			// search for md5-state in seqInMockApp to refresh content
 			isStateAvailable	= false;
 			for (CXMLEmt cxmlEmt : seqInMockApp) {
 				if (cxmlEmt instanceof CMockState)  {
-					if (((CMockState)cxmlEmt).getAttrib("ID").equals(sequence.getSTARTID())) {
+					if (((CMockState)cxmlEmt).getAttrib("ID").equals(findMD5forID(sequence.getSTARTID()))) {
 						isStateAvailable	= true;
 						md5State = (CMockState)cxmlEmt;
 					}
@@ -277,7 +281,7 @@ public class CMockupGenerator {
 			if (md5State == null) {
 				// get imageinformations
 				try {
-					BufferedImage bufferedImage = ImageIO.read(new FileInputStream("images/" + sequence.getSTARTID()));
+					BufferedImage bufferedImage = ImageIO.read(new FileInputStream("Screenshots/scr_" + sequence.getSTARTID() + ".png"));
 					
 					// if pic width > height, then landscape
 					if (bufferedImage.getWidth() > bufferedImage.getHeight())
@@ -298,13 +302,13 @@ public class CMockupGenerator {
 								(Integer.valueOf(m_storyboard.getWidth()) != bufferedImage.getHeight())) {
 							// overlayView
 							md5State = new CMockOverlayView(findMD5forID(sequence.getSTARTID()), 
-									"images/" + sequence.getSTARTID(), 
+									"images/scr_" + sequence.getSTARTID() + ".png", 
 									"", true, isPicLandscape);
 						}
 						else {
 							// View
 							md5State = new CMockView(findMD5forID(sequence.getSTARTID()), 
-									"images/" + sequence.getSTARTID(), 
+									"images/scr_" + sequence.getSTARTID() + ".png", 
 									isPicLandscape);
 						}
 					}
@@ -315,13 +319,13 @@ public class CMockupGenerator {
 								(Integer.valueOf(m_storyboard.getHeight()) != bufferedImage.getHeight())) {
 							// overlayView
 							md5State = new CMockOverlayView(findMD5forID(sequence.getSTARTID()), 
-									"images/" + sequence.getSTARTID(), 
+									"images/scr_" + sequence.getSTARTID() + ".png", 
 									"", true, isPicLandscape);
 						}
 						else {
 							// View
 							md5State = new CMockView(findMD5forID(sequence.getSTARTID()), 
-									"images/" + sequence.getSTARTID(), 
+									"images/scr_" + sequence.getSTARTID() + ".png", 
 									isPicLandscape);
 						}
 					}
@@ -331,8 +335,6 @@ public class CMockupGenerator {
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
-				
 			}
 			
 			// create Transition
@@ -341,8 +343,8 @@ public class CMockupGenerator {
 				for (String strEmt : sequence.getMapSYNC().keySet()) {
 					if (sequence.getMapSYNC().get(strEmt) instanceof CKey) {
 						// KeyLink
-						md5State.addChildNode(new CMockKeyLink(findMD5forID(sequence.getSTARTID()), 
-								sequence.getTARGETID(), 
+						md5State.addChildNode(new CMockKeyLink("", 
+								findMD5forID(sequence.getTARGETID()), 
 								EnumKey.getEnumByValue(Integer.valueOf(((CKey)sequence.getMapSYNC().get(strEmt)).getKeycode()))));
 					}
 					else {
@@ -371,9 +373,9 @@ public class CMockupGenerator {
 							
 							// Create RegionLink
 							md5State.addChildNode(new CMockRegionLink("", 
-									sequence.getTARGETID(), 
-									EnumLinkCategory.SWIPE, 
-									String.valueOf(nNextRegionID)));
+									findMD5forID(sequence.getTARGETID()), 
+									EnumLinkCategory.Swipe, 
+									"Region_" + String.valueOf(nNextRegionID)));
 							
 							// Create Region
 							md5State.addChildNode(new CMockRectangleWithPosition("Region_" + nNextRegionID,
@@ -396,9 +398,9 @@ public class CMockupGenerator {
 							
 							// Create RegionLink
 							md5State.addChildNode(new CMockRegionLink("", 
-									sequence.getTARGETID(), 
-									EnumLinkCategory.SWIPE, 
-									String.valueOf(nNextRegionID)));
+									findMD5forID(sequence.getTARGETID()), 
+									EnumLinkCategory.Touch, 
+									"Region_" + String.valueOf(nNextRegionID)));
 							
 							// Create Region
 							md5State.addChildNode(new CMockRectangleWithPosition("Region_" + nNextRegionID,
@@ -416,30 +418,55 @@ public class CMockupGenerator {
 			}
 			else {
 				// no Events -> TimeLink
-				md5State.addChildNode(new CMockTimedLink(findMD5forID(sequence.getSTARTID()), 
-						sequence.getTARGETID(), sequence.getDELAY()));
+				md5State.addChildNode(new CMockTimedLink("", 
+						findMD5forID(sequence.getTARGETID()), sequence.getDELAY()));
 			}
 			
 			// add state to List
 			if (!isStateAvailable) {
-				mockApp.addChildNode(md5State);
+				seqInMockApp.add(md5State);
 			}
 			
 			if (nSeq == 1) {
 				// if first seq, then add start
 				CMockStart mockStart = new CMockStart("_Start", findMD5forID(sequence.getSTARTID()));
 				mockStart.addChildNode(new CMockStartLink("Start123", findMD5forID(sequence.getSTARTID())));
-				mockApp.addChildNode(mockStart);
+				seqInMockApp.add(mockStart);
 			}
 			else if (nSeq == m_storyboard.getSequences().size()) {
 				// if last seq, then add end
-				CMockView mockView1 = new CMockView(findMD5forID(sequence.getTARGETID()), "images/" + sequence.getTARGETID() + ".png", false);
-				mockView1.addChildNode(new CMockKeyLink("KeyID_End", "_End", EnumKey.HOME));
-				mockApp.addChildNode(mockView1);
+				md5State	= null;
+				
+				// search for md5-state in seqInMockApp to refresh content
+				for (CXMLEmt cxmlEmt : seqInMockApp) {
+					if (cxmlEmt instanceof CMockState)  {
+						if (((CMockState)cxmlEmt).getAttrib("ID").equals(findMD5forID(sequence.getTARGETID()))) {
+							md5State = (CMockState)cxmlEmt;
+						}
+					}
+				}
+				
+				// create new View, if not existing
+				if (md5State == null) {
+					md5State = new CMockView(findMD5forID(sequence.getTARGETID()), "images/scr_" + sequence.getTARGETID() + ".png", false);
+					md5State.addChildNode(new CMockKeyLink("KeyID_End", "_End", EnumKey.HOME));
+					seqInMockApp.add(md5State);
+				}
+				else {
+					md5State.addChildNode(new CMockKeyLink("KeyID_End", "_End", EnumKey.HOME));
+				}
+				
 				mockApp.addChildNode(new CMockEnd("_End"));
+				
 			}
+			
+			// Update Progressbar
+			progress.nextStep();
 		}
 		
+		progress.hide();
+		
+		//mockApp.addChildNode(seqInMockApp);
 		mockApp.setNextRegionID(nNextRegionID);
 		m_mockTree.addChildNode(mockApp);
 		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap);

@@ -8,7 +8,7 @@ package de.ostfalia.mockup.datamodel;
  *
  */
 public enum EnumLinkCategory {
-	TOUCH,
-	LONGTOUCH,
-	SWIPE
+	Touch,
+	LongTouch,
+	Swipe
 }

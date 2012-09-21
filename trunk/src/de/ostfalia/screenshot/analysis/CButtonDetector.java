@@ -46,12 +46,12 @@ public class CButtonDetector {
 	 * @param biSource
 	 * @return
 	 */
-	public BufferedImage process(BufferedImage biSource, Point pPoint, Rectangle outRect) {
+	public Rectangle process(BufferedImage biSource, Point pPoint, BufferedImage biOutput) {
 		// load the file using Java's imageIO library 
-        BufferedImage biOutput	= new BufferedImage(biSource.getColorModel(),
-        										biSource.copyData(biSource.getRaster()),
-						        				biSource.getColorModel().isAlphaPremultiplied(), 
-						        				null);
+        biOutput	= new BufferedImage(biSource.getColorModel(),
+        								biSource.copyData(biSource.getRaster()),
+						        		biSource.getColorModel().isAlphaPremultiplied(), 
+						        		null);
         
         // Left
         m_leftBorder 	= getLine(ORIENTATION_LEFT, pPoint, biOutput);
@@ -66,11 +66,11 @@ public class CButtonDetector {
         m_bottomBorder 	= getLine(ORIENTATION_BOTTOM, pPoint, biOutput);
         
         // calc rectangle
-        outRect = getProcessedRectangle(biOutput);
+        Rectangle outRect = getProcessedRectangle(biOutput);
         // draw rectangle on picture
         drawRectOnBI(biOutput, outRect);
         
-        return biOutput;
+        return outRect;
 	}
 	
 	/**

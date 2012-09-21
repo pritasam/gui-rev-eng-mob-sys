@@ -8,6 +8,7 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 
 import com.glavsoft.drawing.Renderer;
 import com.glavsoft.rfb.client.ClientToServerMessage;
@@ -44,6 +45,7 @@ public class CInputRecorder{
 	private byte 					m_buttonMask;
 	private short 					m_x;
 	private short 					m_y;
+	private JFrame 					m_containerFrame;
 	
 	/**
 	 * Constructor
@@ -58,6 +60,20 @@ public class CInputRecorder{
 		initStoryboard();
 	}
 	
+	/**
+	 * @return the m_containerFrame
+	 */
+	public JFrame getContainerFrame() {
+		return m_containerFrame;
+	}
+
+	/**
+	 * @param m_containerFrame the m_containerFrame to set
+	 */
+	public void setContainerFrame(JFrame containerFrame) {
+		this.m_containerFrame = containerFrame;
+	}
+
 	/**
 	 * Get Instance from singleton
 	 * @return

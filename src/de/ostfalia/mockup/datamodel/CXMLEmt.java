@@ -18,6 +18,8 @@ import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
+import java.util.jar.JarEntry;
+import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -144,14 +146,14 @@ public class CXMLEmt {
 			isSuccess = saveMockFile(new File("DiagMock" + File.separator + 
 												strDiagramName + File.separator + 
 													"diagrams" + File.separator +
-														strDiagramName + ".mock"));
+														strDiagramName + "UTF8.mock"), "UTF-8");
 		
 		// gen Diagram-File
 		if (isSuccess) {
 			isSuccess = saveDiagramFile(new File("DiagMock" + File.separator +
 													strDiagramName + File.separator + 
 														"diagrams" + File.separator +
-															strDiagramName + ".diagram"));
+															strDiagramName + ".diagram"), "UTF-8");
 		}
 			
 		
@@ -165,7 +167,7 @@ public class CXMLEmt {
 				isSuccess = saveInfoFile(new File("DiagMock" + File.separator +
 													strDiagramName + File.separator + 
 														"export" + File.separator +
-															"info.txt"), strDiagramName);
+															"info.txt"), strDiagramName, "UTF-8");
 		}
 		
 		// gen preview-file
@@ -199,17 +201,19 @@ public class CXMLEmt {
 	 * @param fMockFile
 	 * @return
 	 */
-	private boolean saveMockFile(File fMockFile) {
+	private boolean saveMockFile(File fMockFile, String strCharset) {
 		boolean			isSuccess 		= true;
 		BufferedWriter	bw;
-		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n";
+		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n" ;
 		
 		try {
 			fMockFile.createNewFile();
 			bw = new BufferedWriter(new FileWriter(fMockFile), 1024);
 			strWritebuffer += this.getXMLTree(0);
 			
-			bw.write(strWritebuffer);
+			String strOut = new String(strWritebuffer.getBytes(), strCharset);
+			
+			bw.write(strOut);
 			bw.newLine();
 			bw.flush();
 		} catch (IOException e) {
@@ -225,7 +229,7 @@ public class CXMLEmt {
 	 * @param fDiagramFile
 	 * @return
 	 */
-	private boolean saveDiagramFile(File fDiagramFile) {
+	private boolean saveDiagramFile(File fDiagramFile, String strCharset) {
 		boolean			isSuccess 		= true;
 		int				nCntViews		= getCountViews(this);
 		Point			ptViewPosition	= null;
@@ -237,8 +241,10 @@ public class CXMLEmt {
 			bw = new BufferedWriter(new FileWriter(fDiagramFile), 1024);
 			//strWritebuffer += this.getXMLTree(0);
 			ptViewPosition	= getPositionOfView(1, nCntViews);
+
+			String strOut = new String(strWritebuffer.getBytes(), strCharset);
 			
-			bw.write(strWritebuffer);
+			bw.write(strOut);
 			bw.newLine();
 			bw.flush();
 		} catch (IOException e) {
@@ -255,7 +261,7 @@ public class CXMLEmt {
 	 * @param strMockupName
 	 * @return
 	 */
-	private boolean saveInfoFile(File fInfoFile, String strMockupName) {
+	private boolean saveInfoFile(File fInfoFile, String strMockupName, String strCharset) {
 		boolean			isSuccess 		= true;
 		BufferedWriter	bw;
 		String			strWritebuffer 	= "Project: " + strMockupName + "\n";
@@ -266,7 +272,9 @@ public class CXMLEmt {
 			strWritebuffer += "Preview: " + strMockupName + "/export/preview.jpg\n";
 			strWritebuffer += "Mock: /" + strMockupName + ".mocks/" + strMockupName + ".mock\n";
 			
-			bw.write(strWritebuffer);
+			String strOut = new String(strWritebuffer.getBytes(), strCharset);
+			
+			bw.write(strOut);
 			bw.newLine();
 			bw.flush();
 		} catch (IOException e) {
@@ -380,12 +388,17 @@ public class CXMLEmt {
 	 */
 	private boolean createMockjarFile(String strFolderToFiles, String strMockUpName) {
 		boolean			isSuccess 	= true;
-		ZipOutputStream	zipOut		= null;
+//		ZipOutputStream	zipOut		= null;
+		JarOutputStream jarOut		= null;
 		
 		try {
-			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
+//			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
+			jarOut = new JarOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
 		} catch (FileNotFoundException e) {
 			isSuccess = false;
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		finally
@@ -393,11 +406,17 @@ public class CXMLEmt {
 			try
 			{
 				// recursive method to iterate mockup-folder
-				iterateMockupFolder(new File(strFolderToFiles), zipOut, 
+//				iterateMockupFolder(new File(strFolderToFiles), zipOut, 
+//						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
+//				
+//				if (zipOut != null)
+//					zipOut.close();
+				
+				iterateMockupFolder(new File(strFolderToFiles), jarOut, 
 						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
 				
-				if (zipOut != null)
-					zipOut.close();
+				if (jarOut != null)
+					jarOut.close();
 			}
 			catch(Exception ex)
 			{
@@ -415,14 +434,15 @@ public class CXMLEmt {
 	 * @param zipOut
 	 * @param strRootFolder
 	 */
-	private void iterateMockupFolder(File folderToFiles, ZipOutputStream zipOut, String strRootFolder) {
+	private void iterateMockupFolder(File folderToFiles, JarOutputStream jarOut, String strRootFolder) {
 		File[] files = folderToFiles.listFiles();
 		
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isDirectory()) {
 					// recursive call with subfolder
-					iterateMockupFolder(files[i], zipOut, strRootFolder);
+//					iterateMockupFolder(files[i], zipOut, strRootFolder);
+					iterateMockupFolder(files[i], jarOut, strRootFolder);
 					
 					}
 				else {
@@ -430,12 +450,13 @@ public class CXMLEmt {
 					try {
 						String strPath			= files[i].getPath(); //.substring(strRootFolder.length());
 						FileInputStream inFile 	= new FileInputStream(strPath);
-						zipOut.putNextEntry(new ZipEntry(strPath.substring(strRootFolder.length())));
+//						zipOut.putNextEntry(new ZipEntry(strPath.substring(strRootFolder.length())));
+						jarOut.putNextEntry(new JarEntry(strPath.substring(strRootFolder.length())));
 						byte[] buffer = new byte[4096];
 						int nLen;
 						
 						while ((nLen = inFile.read(buffer)) > 0) {
-							zipOut.write(buffer, 0, nLen);
+							jarOut.write(buffer, 0, nLen);
 						}
 						
 						inFile.close();

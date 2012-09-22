@@ -97,16 +97,11 @@ public abstract class CGuiExtender {
 						JOptionPane.showMessageDialog(null, "Diagramfiles successfully generated.", "Mockupgenerator", JOptionPane.INFORMATION_MESSAGE); 
 					else
 						JOptionPane.showMessageDialog(null, "Errors occurred during generation of diagramfiles.", "Mockupgenerator", JOptionPane.ERROR_MESSAGE); 
-					
-//					if (mockgen.testMockModel())
-//						JOptionPane.showMessageDialog(null, "Diagramfiles successfully generated.", "Mockupgenerator", JOptionPane.INFORMATION_MESSAGE); 
-//					else
-//						JOptionPane.showMessageDialog(null, "Errors occurred during generation of diagramfiles.", "Mockupgenerator", JOptionPane.ERROR_MESSAGE); 
 				}
 			}
 		});
 		
-		// Storyboardbutton
+		// Storyboardbutton play
 		buttonBar.add(Box.createHorizontalStrut(10));
 		
 		final JToggleButton btnStoryboard = new JToggleButton(Utils.getButtonIcon("storyboard"));

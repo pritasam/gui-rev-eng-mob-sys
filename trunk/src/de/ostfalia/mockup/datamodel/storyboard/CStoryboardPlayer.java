@@ -170,11 +170,12 @@ public class CStoryboardPlayer {
 																		  			  Short.valueOf(swipePoint.getY())));
 								
 								// send interpolation during duration
-								float fAlpha 	= 0.0f;
-								float fx 		= 0.0f;
-								float fy 		= 0.0f;
-								int	nCount		= 0;
-								lngLastEvent = m_lngTimestamp;
+								float fAlpha 		= 0.0f;
+								float fx 			= 0.0f;
+								float fy 			= 0.0f;
+								int	nCount			= 0;
+								lngLastEvent 		= m_lngTimestamp;
+																		
 								while ((System.currentTimeMillis() - m_lngTimestamp) < Integer.valueOf(swipeEvent.getDura())) {
 									nCount++;
 									
@@ -183,8 +184,10 @@ public class CStoryboardPlayer {
 										
 										// get swipepoint (=(Delta/Dura) * (Count-1))
 										if (Integer.valueOf(swipeEvent.getDura()) > 0) {
-											nSwipePointIndex1 = Integer.valueOf(((int)(System.currentTimeMillis() - m_lngTimestamp) / Integer.valueOf(swipeEvent.getDura())) *
-																(nPointCount - 1));
+//											nSwipePointIndex1 = Integer.valueOf(((int)(System.currentTimeMillis() - m_lngTimestamp) / Integer.valueOf(swipeEvent.getDura())) *
+//																(nPointCount - 2));
+											nSwipePointIndex1 = (int) (((float)(System.currentTimeMillis() - m_lngTimestamp) / Integer.valueOf(swipeEvent.getDura())) *
+													(nPointCount - 1));
 											nSwipePointIndex2 = nSwipePointIndex1 + 1;
 											
 											if ((nSwipePointIndex1 < nPointCount) &&
@@ -197,7 +200,7 @@ public class CStoryboardPlayer {
 											// div/0
 											nSwipePointIndex1 = 1;
 											nSwipePointIndex2 = 2;
-										}
+										}										
 										
 										fAlpha = (float)(System.currentTimeMillis() - m_lngTimestamp) / Float.valueOf(swipeEvent.getDura());
 										swipePoint = swipeEvent.getMapPoints().get("1");
@@ -206,7 +209,8 @@ public class CStoryboardPlayer {
 										fy = ((1.0f - fAlpha) * (float)Short.valueOf(swipeEvent.getMapPoints().get(String.valueOf(nSwipePointIndex1)).getY()) + 
 												fAlpha * (float)Short.valueOf(swipeEvent.getMapPoints().get(String.valueOf(nSwipePointIndex2)).getY()));
 										
-										CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " interpolation x:" + fx + " y:" + fy);
+										CLogger.getInst(CLogger.SYS_OUT).writeline("Storyboardplayer::playStoryboard(): swipeEvent " + nSync + " interpolation x:" + fx + " y:" + fy + 
+												" [" + nSwipePointIndex1 + ";" + nSwipePointIndex2 + "]");
 										
 										m_workingProtocol.sendMessage(new PointerEventMessage(Byte.valueOf(swipeEvent.getBtn()), 
 																				  			  (short)fx,

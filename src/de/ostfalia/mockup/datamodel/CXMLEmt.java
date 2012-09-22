@@ -30,6 +30,7 @@ import de.ostfalia.mockup.datamodel.diagram.CDiagramConsts;
 import de.ostfalia.mockup.datamodel.mock.CMockDocumentRoot;
 import de.ostfalia.mockup.datamodel.mock.CMockRegionLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
+import de.ostfalia.screenshot.analysis.CPreviewGenerator;
 
 /**
  * @author O. Laudi
@@ -175,7 +176,7 @@ public class CXMLEmt {
 			isSuccess = savePreviewFile(new File("DiagMock" + File.separator +
 													strDiagramName + File.separator + 
 														"export" + File.separator +
-															"preview.jpg"), strDiagramName);
+															"preview.jpg"), strDiagramName, picMap);
 		}
 		
 		// copy mockup-pictures to folder "images"
@@ -289,17 +290,13 @@ public class CXMLEmt {
 	 * saves a preview.jpg which contains the Mockup-name
 	 * @param fPrevFile
 	 * @param strMockupName
+	 * @param picMap
 	 * @return
 	 */
-	private boolean savePreviewFile(File fPrevFile, String strMockupName) {
+	private boolean savePreviewFile(File fPrevFile, String strMockupName, HashMap<String, List<String>> picMap) {
 		boolean			isSuccess 		= true;
-		BufferedImage	biPreview		= new BufferedImage(640, 480, BufferedImage.TYPE_INT_RGB);
-		Graphics2D		g				= biPreview.createGraphics();
-		
-		g.setBackground(Color.LIGHT_GRAY);
-		//g.setColor(Color.BLACK);
-		g.setFont(new Font("Arial", Font.BOLD, 96));
-		g.drawString(strMockupName, 15, 480 / 2);
+		CPreviewGenerator prevGen		= new CPreviewGenerator();
+		BufferedImage	biPreview		= prevGen.getPreviewGraphic(picMap, strMockupName);
 		
 		try {
 			isSuccess = ImageIO.write(biPreview, "jpg", fPrevFile);

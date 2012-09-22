@@ -6,6 +6,7 @@ package de.ostfalia.viewer.inputrecorder;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
@@ -29,34 +30,45 @@ import de.ostfalia.viewer.logger.CLogger;
  *
  */
 public class CInputRecorder{
+	// Constant
+	private final static int				MIN_EVENT_DELAY = 250;
 	
-	private static CInputRecorder	m_instance;
-	private CImageComparer			m_imageCmp;
-	private byte					m_lastButtonMask;
-	private boolean					m_isFirstImgSaved;
-	private boolean					m_isEventMessage;
-	private boolean					m_isRecord;
-	private boolean					m_isStoryPlaying;
-	private CStoryboard				m_storyboard;
-	private CSequence				m_sequence;
-	private long					m_lTimeStamp;
-	private long					m_lngLastSeqBegin;
-	private long					m_lngLastEventEnd;
-	private byte 					m_buttonMask;
-	private short 					m_x;
-	private short 					m_y;
-	private JFrame 					m_containerFrame;
+	// Member
+	private static CInputRecorder			m_instance;
+	private CImageComparer					m_imageCmp;
+	private byte							m_lastButtonMask;
+	private boolean							m_isFirstImgSaved;
+	private boolean							m_isEventMessage;
+	private boolean							m_isRecord;
+	private boolean							m_isStoryPlaying;
+	private boolean							m_isSwipePointsRecording;
+	private CStoryboard						m_storyboard;
+	private CSequence						m_sequence;
+	private long							m_lTimeStamp;
+	private long							m_lngLastSeqBegin;
+	private long							m_lngLastEventEnd;
+	private byte 							m_buttonMask;
+	private short 							m_x;
+	private short 							m_y;
+	private JFrame 							m_containerFrame;
+	private HashMap<Integer, CSwipePoint>	m_SwipePoints;
+	private Integer							m_nSwipePointsCount;
+	private long							m_lLastSwipePoint;
 	
 	/**
 	 * Constructor
 	 */
 	private CInputRecorder() {
-		m_lastButtonMask 		= 0;
-		m_imageCmp 				= null;
-		m_isFirstImgSaved 		= false;
-		m_isEventMessage		= false;
-		m_isRecord				= false;
-		m_isStoryPlaying		= false;
+		m_lastButtonMask 			= 0;
+		m_nSwipePointsCount			= 0;
+		m_lLastSwipePoint			= 0;
+		m_imageCmp 					= null;
+		m_isFirstImgSaved 			= false;
+		m_isEventMessage			= false;
+		m_isRecord					= false;
+		m_isStoryPlaying			= false;
+		m_isSwipePointsRecording	= false;
+		m_SwipePoints				= null;
 		initStoryboard();
 	}
 	
@@ -80,7 +92,7 @@ public class CInputRecorder{
 	 */
 	public static CInputRecorder getInst() {
 		if ( m_instance == null) {
-			m_instance 			= new CInputRecorder();
+			m_instance 	= new CInputRecorder();
 		}
 		return m_instance;
 	}
@@ -146,11 +158,15 @@ public class CInputRecorder{
 	 * Creates a new Instance of CStoryboard
 	 */
 	public void initStoryboard() {
-		m_sequence			= null;
-		m_storyboard 		= new CStoryboard(0, 0);
-		m_lTimeStamp		= System.currentTimeMillis();
-		m_lngLastSeqBegin	= 0;
-		m_lngLastEventEnd	= 0;
+		m_sequence					= null;
+		m_SwipePoints				= null;
+		m_storyboard 				= new CStoryboard(0, 0);
+		m_lTimeStamp				= System.currentTimeMillis();
+		m_lngLastSeqBegin			= 0;
+		m_lngLastEventEnd			= 0;
+		m_nSwipePointsCount			= 0;
+		m_lLastSwipePoint			= 0;
+		m_isSwipePointsRecording	= false;
 	}
 	
 	/**
@@ -172,13 +188,26 @@ public class CInputRecorder{
 			if (message instanceof PointerEventMessage) {
 				// Click
 				//CLogger.getInst(CLogger.SYS_OUT).writeline("CInputRecorder::processMessage(): PointerEventMessage: " + ((PointerEventMessage)message).toString());
+				if (m_isSwipePointsRecording) {
+					if (((System.currentTimeMillis() - m_lLastSwipePoint) > MIN_EVENT_DELAY)) {
+						m_lLastSwipePoint = System.currentTimeMillis();
+						m_SwipePoints.put(m_nSwipePointsCount, new CSwipePoint(String.valueOf(((PointerEventMessage)message).getX()),
+																			   String.valueOf(((PointerEventMessage)message).getY())));
+						m_nSwipePointsCount++;
+					}
+				}
 				
 				if ((1 == ((PointerEventMessage) message).getButtonMask()) && 
 						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+					// Button pressed
 					
-					m_lngLastSeqBegin 	= m_lTimeStamp;
-					m_lTimeStamp		= System.currentTimeMillis();
-					m_lngLastEventEnd 	= 0;
+					m_lngLastSeqBegin 			= m_lTimeStamp;
+					m_lTimeStamp				= System.currentTimeMillis();
+					m_lngLastEventEnd 			= 0;
+					m_isSwipePointsRecording	= true;
+					m_SwipePoints				= new HashMap<Integer, CSwipePoint>();
+					m_nSwipePointsCount			= 0;
+					m_lLastSwipePoint 			= System.currentTimeMillis();
 					
 					saveScreenshot(receiverTask.getRenderer(), m_lTimeStamp);
 					// add last sequence to storyboard if exits and set targetID
@@ -194,16 +223,11 @@ public class CInputRecorder{
 					m_buttonMask = ((PointerEventMessage)message).getButtonMask();
 					m_x = ((PointerEventMessage)message).getX();
 					m_y = ((PointerEventMessage)message).getY();
-					
-//					CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());
-//					prepareImageCompare(receiverTask.getRenderer(), lTimeStamp);
-////					m_imageCmp.saveMasterAsPicFile();
-//					this.m_isEventMessage = true;
-////					saveScreenshot(receiverTask.getRenderer(), lTimeStamp);
 				}
 				else if ((0 == ((PointerEventMessage) message).getButtonMask()) && 
-						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())){
-					
+						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
+					// Button released
+					m_isSwipePointsRecording = false;					
 
 					// unterscheiden sich Koordinaten, dann swipe, ansonsten touch
 					if ((m_x != ((PointerEventMessage)message).getX()) || 
@@ -213,6 +237,11 @@ public class CInputRecorder{
 												String.valueOf(System.currentTimeMillis() - m_lTimeStamp),
 												String.valueOf(m_lngLastEventEnd));
 						swp.addtMapPoint(new CSwipePoint(String.valueOf(m_x), String.valueOf(m_y)));
+						// add recorded swipepoints but ignore last one
+						for (int i = 0; i < m_SwipePoints.size(); i++) {
+							swp.addtMapPoint(m_SwipePoints.get(i));
+						}
+						
 						swp.addtMapPoint(new CSwipePoint(String.valueOf(((PointerEventMessage)message).getX()), 
 														 String.valueOf(((PointerEventMessage)message).getY())));
 						

@@ -65,6 +65,14 @@ public class CPreviewGenerator {
 				biPreview		= new BufferedImage(pPrevRes.x, pPrevRes.y, BufferedImage.TYPE_INT_RGB);
 				Graphics2D g	= biPreview.createGraphics();
 				
+				for (String strMD5 : picMap.keySet()) {
+					List<String> lstPics	= picMap.get(strMD5);
+					if (lstPics.size() > 0) {
+						String strPicName 	= lstPics.get(0);
+//						Point pPosiOfPic 	= getPosiOfPic()
+					}
+				}
+				
 				for (int y = 0; y < pPrevRes.y; y++) {
 					for (int x = 0; x < pPrevRes.x; x++) {
 						drawPic(x, y, strMockupName, g);
@@ -84,15 +92,24 @@ public class CPreviewGenerator {
 	private Point getPreviewResolution(Point pPicRes, int nPicCount) {
 		int nRatioSum = CDiagramConsts.ASPECT_RATIO_X + CDiagramConsts.ASPECT_RATIO_Y;
 		
-		// get max x and max y number of views
+		// get max x and max y number of pics
 		int nMaxX = (int)((Math.sqrt(Integer.valueOf(nPicCount)) * (2.0 / nRatioSum * CDiagramConsts.ASPECT_RATIO_X)) + 0.5);
-		//int nMaxY = (int)((Math.sqrt(Integer.valueOf(nViewcount)) * (2.0 / nRatioSum * CDiagramConsts.ASPECT_RATIO_Y)) + 0.5);
-	
-		// get exact position of nCurrentView
-		int nX = nPicCount % nMaxX;
-		int nY = (int)(nPicCount / nMaxX);
+		int nMaxY = (int)((Math.sqrt(Integer.valueOf(nPicCount)) * (2.0 / nRatioSum * CDiagramConsts.ASPECT_RATIO_Y)) + 0.5);
 		
-		return new Point(nX * nPICCELLWIDTTH, nY * nPICCELLHEIGHT);
+		return new Point(nMaxX, nMaxY);
+	}
+	
+	private Point getPosiOfPic(int nCurrentPic, int nPicCount) {
+		int nRatioSum = CDiagramConsts.ASPECT_RATIO_X + CDiagramConsts.ASPECT_RATIO_Y;
+		
+		// get max x and max y number of pics
+		int nMaxX = (int)((Math.sqrt(Integer.valueOf(nPicCount)) * (2.0 / nRatioSum * CDiagramConsts.ASPECT_RATIO_X)) + 0.5);
+	
+		// get exact position of nCurrentPic
+		int nX = nCurrentPic % nMaxX;
+		int nY = (int)(nCurrentPic / nMaxX);
+		
+		return new Point(nX, nY);
 	}
 	
 	private void drawPic(int x, int y, String strPicName, Graphics2D gOut) {

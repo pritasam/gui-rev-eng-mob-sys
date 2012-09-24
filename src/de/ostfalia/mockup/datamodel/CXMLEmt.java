@@ -20,8 +20,9 @@ import java.io.IOException;
 import java.util.*;
 import java.util.jar.JarEntry;
 import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipOutputStream;
+//import java.util.zip.ZipEntry;
+//import java.util.zip.ZipOutputStream;
+import org.apache.tools.zip.*;
 
 import javax.imageio.ImageIO;
 import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
@@ -385,12 +386,14 @@ public class CXMLEmt {
 	 */
 	private boolean createMockjarFile(String strFolderToFiles, String strMockUpName) {
 		boolean			isSuccess 	= true;
-//		ZipOutputStream	zipOut		= null;
-		JarOutputStream jarOut		= null;
+		ZipOutputStream zipOut		= null;
+//		JarOutputStream jarOut		= null;
 		
 		try {
-//			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
-			jarOut = new JarOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
+			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
+			zipOut.setEncoding("UTF-8");
+//			jarOut = new JarOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
+			
 		} catch (FileNotFoundException e) {
 			isSuccess = false;
 			e.printStackTrace();
@@ -403,17 +406,17 @@ public class CXMLEmt {
 			try
 			{
 				// recursive method to iterate mockup-folder
-//				iterateMockupFolder(new File(strFolderToFiles), zipOut, 
-//						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
-//				
-//				if (zipOut != null)
-//					zipOut.close();
-				
-				iterateMockupFolder(new File(strFolderToFiles), jarOut, 
+				iterateMockupFolder(new File(strFolderToFiles), zipOut, 
 						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
 				
-				if (jarOut != null)
-					jarOut.close();
+				if (zipOut != null)
+					zipOut.close();
+				
+//				iterateMockupFolder(new File(strFolderToFiles), jarOut, 
+//						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
+//
+//				if (jarOut != null)
+//					jarOut.close();
 			}
 			catch(Exception ex)
 			{
@@ -431,15 +434,15 @@ public class CXMLEmt {
 	 * @param zipOut
 	 * @param strRootFolder
 	 */
-	private void iterateMockupFolder(File folderToFiles, JarOutputStream jarOut, String strRootFolder) {
+	private void iterateMockupFolder(File folderToFiles, ZipOutputStream zipOut, String strRootFolder) {
 		File[] files = folderToFiles.listFiles();
 		
 		if (files != null) {
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isDirectory()) {
 					// recursive call with subfolder
-//					iterateMockupFolder(files[i], zipOut, strRootFolder);
-					iterateMockupFolder(files[i], jarOut, strRootFolder);
+					iterateMockupFolder(files[i], zipOut, strRootFolder);
+//					iterateMockupFolder(files[i], jarOut, strRootFolder);
 					
 					}
 				else {
@@ -447,13 +450,14 @@ public class CXMLEmt {
 					try {
 						String strPath			= files[i].getPath(); //.substring(strRootFolder.length());
 						FileInputStream inFile 	= new FileInputStream(strPath);
-//						zipOut.putNextEntry(new ZipEntry(strPath.substring(strRootFolder.length())));
-						jarOut.putNextEntry(new JarEntry(strPath.substring(strRootFolder.length())));
+						zipOut.putNextEntry(new ZipEntry(strPath.substring(strRootFolder.length())));
+//						jarOut.putNextEntry(new JarEntry(strPath.substring(strRootFolder.length())));
 						byte[] buffer = new byte[4096];
 						int nLen;
 						
 						while ((nLen = inFile.read(buffer)) > 0) {
-							jarOut.write(buffer, 0, nLen);
+							zipOut.write(buffer, 0, nLen);
+//							jarOut.write(buffer, 0, nLen);
 						}
 						
 						inFile.close();

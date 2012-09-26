@@ -154,7 +154,12 @@ public class CStoryboard extends CXMLStoryboardEmt{
 										  "<!DOCTYPE  Storyboard SYSTEM \"Storyboard.dtd\">\n";
 		
 		isSuccess	= new File("Storyboard" + File.separator + 
-				this.m_strID).mkdirs();
+				this.m_strID).exists();
+		
+		if (!isSuccess) {
+			isSuccess	= new File("Storyboard" + File.separator + 
+					this.m_strID).mkdirs();
+		}
 		
 		if (isSuccess) {
 			// create storyfile

@@ -426,6 +426,78 @@ public class CMockupGenerator {
 			}
 			else if (sequence.getMapASYNC().size() > 0 ) {
 				// ASyncTransitions
+				// SyncTransitions
+				for (String strEmt : sequence.getMapASYNC().keySet()) {
+					if (sequence.getMapASYNC().get(strEmt) instanceof CKey) {
+						// KeyLink
+						md5State.addChildNode(new CMockKeyLink("", 
+								findMD5forID(sequence.getTARGETID()), 
+								EnumKey.getEnumByValue(Integer.valueOf(((CKey)sequence.getMapASYNC().get(strEmt)).getKeycode()))));
+					}
+					else {
+						// Touch or Swipe
+						if (sequence.getMapASYNC().get(strEmt) instanceof CSwipe) {
+							// ViewLink
+							//TODO
+							
+							// RegionLink + Region
+							CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
+									   "scr_" + sequence.getSTARTID() + ".png");
+
+							// Get Rectangle
+							Rectangle rectButton = null;
+							if (((CSwipe)sequence.getMapASYNC().get(strEmt)).getMapPoints().size() > 0) {
+								// Get first SwipePoint
+								CSwipePoint swpPnt = ((CSwipe)sequence.getMapASYNC().get(strEmt)).getMapPoints().get("1");
+								rectButton = analyze.getSurroundedRect(
+										new Point(Integer.valueOf(swpPnt.getX()), 
+												  Integer.valueOf(swpPnt.getY())));
+							}
+							else {
+								rectButton = new Rectangle(1, 1, 
+										Integer.valueOf(m_storyboard.getWidth()), Integer.valueOf(m_storyboard.getHeight()));
+							}
+							
+							// Create RegionLink
+							md5State.addChildNode(new CMockRegionLink("", 
+									findMD5forID(sequence.getTARGETID()), 
+									EnumLinkCategory.Swipe, 
+									"Region_" + String.valueOf(nNextRegionID)));
+							
+							// Create Region
+							md5State.addChildNode(new CMockRectangleWithPosition("Region_" + nNextRegionID,
+									rectButton.height, rectButton.width,
+									rectButton.x, rectButton.y));
+							
+							nNextRegionID++;
+						}
+						else if (sequence.getMapASYNC().get(strEmt) instanceof CTouch) {
+							// ViewLink
+							//TODO
+							
+							// RegionLink + Region
+							CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
+									   "scr_" + sequence.getSTARTID() + ".png");
+
+							Rectangle rectButton = analyze.getSurroundedRect(
+									new Point(Integer.valueOf(((CTouch)sequence.getMapASYNC().get(strEmt)).getX()), 
+											  Integer.valueOf(((CTouch)sequence.getMapASYNC().get(strEmt)).getY())));
+							
+							// Create RegionLink
+							md5State.addChildNode(new CMockRegionLink("", 
+									findMD5forID(sequence.getTARGETID()), 
+									EnumLinkCategory.Touch, 
+									"Region_" + String.valueOf(nNextRegionID)));
+							
+							// Create Region
+							md5State.addChildNode(new CMockRectangleWithPosition("Region_" + nNextRegionID,
+									rectButton.height, rectButton.width,
+									rectButton.x, rectButton.y));
+							
+							nNextRegionID++;
+						}
+					}
+				}
 			}
 			else {
 				// no Events -> TimeLink

@@ -88,7 +88,7 @@ public class CPicAnalyzer {
 		Rectangle outRect = null;
 		BufferedImage biHoughImage = null;
 		outRect = processButtonDetector(biEdgeImage, pPoint, biHoughImage, this.m_strImageFile);
-		saveBufferedImage(biHoughImage, this.m_strImageFile + "ButtonDetect.png");
+		//saveBufferedImage(biHoughImage, this.m_strImageFile + "ButtonDetect.png");
 		
 		return outRect;
 	}
@@ -102,10 +102,10 @@ public class CPicAnalyzer {
 		CannyEdgeDetector detector = new CannyEdgeDetector(); 
 		
 		// adjust its parameters as desired 
-		detector.setLowThreshold(3f); 
-		detector.setHighThreshold(6f); 
-//		detector.setLowThreshold(4f); 
-//		detector.setHighThreshold(8f);
+		detector.setLowThreshold(1f); 
+		detector.setHighThreshold(3f); 
+//		detector.setLowThreshold(3f); 
+//		detector.setHighThreshold(6f);
 		
 		// apply it to an image 
 		detector.setSourceImage(this.m_biSourceImage); 

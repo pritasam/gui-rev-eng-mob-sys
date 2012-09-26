@@ -1,3 +1,20 @@
+//    MockVNC-Client, extends the original Tight-VNC-Client from 
+//	  http://www.tightvnc.com/ for GUI-Reverseengineering-features
+//    for mobile devices.
+//    Copyright (C) 2012  Oliver Laudi
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * 
  */
@@ -19,6 +36,7 @@ import org.apache.tools.zip.*;
 import javax.imageio.ImageIO;
 
 import de.ostfalia.mockup.datamodel.diagram.CDiagramConsts;
+import de.ostfalia.mockup.datamodel.diagram.CDiagramGenerator;
 import de.ostfalia.mockup.datamodel.mock.CMockRegionLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
 import de.ostfalia.screenshot.analysis.CPreviewGenerator;
@@ -145,7 +163,7 @@ public class CXMLEmt {
 			isSuccess = saveDiagramFile(new File("DiagMock" + File.separator +
 													strDiagramName + File.separator + 
 														"diagrams" + File.separator +
-															strDiagramName + ".diagram"), "UTF-8");
+															strDiagramName + ".diagram"), "UTF-8", strDiagramName);
 		}
 			
 		
@@ -221,18 +239,21 @@ public class CXMLEmt {
 	 * @param fDiagramFile
 	 * @return
 	 */
-	private boolean saveDiagramFile(File fDiagramFile, String strCharset) {
+	private boolean saveDiagramFile(File fDiagramFile, String strCharset, String strDiagramName) {
 		boolean			isSuccess 		= true;
-		int				nCntViews		= getCountViews(this);
-		Point			ptViewPosition	= null;
+//		int				nCntViews		= getCountViews(this);
+//		Point			ptViewPosition	= null;
+		CDiagramGenerator diagGen		= new CDiagramGenerator(this, strDiagramName);
 		BufferedWriter	bw;
 		String			strWritebuffer 	= "<?xml version=\"1.0\" encoding=\"ASCII\"?>\n";
 		
 		try {
 			fDiagramFile.createNewFile();
 			bw = new BufferedWriter(new FileWriter(fDiagramFile), 1024);
+			strWritebuffer += diagGen.getXMLString();
+			
 			//strWritebuffer += this.getXMLTree(0);
-			ptViewPosition	= getPositionOfView(1, nCntViews);
+//			ptViewPosition	= getPositionOfView(1, nCntViews);
 
 			String strOut = new String(strWritebuffer.getBytes(), strCharset);
 			

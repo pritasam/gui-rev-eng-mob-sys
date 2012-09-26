@@ -18,14 +18,22 @@
 /**
  * 
  */
-package de.ostfalia.mockup.datamodel;
+package de.ostfalia.mockup.datamodel.diagram;
 
 /**
  * @author O. Laudi
  *
  */
-public enum EnumLinkCategory {
-	Touch,
-	LongTouch,
-	Swipe
+public abstract class CXMLDiagramEmt {
+	protected final String		m_XMLSPACE = "   ";
+	protected String			m_strMockName	= "";
+	
+	public CXMLDiagramEmt(String strMockName) {
+		m_strMockName	= strMockName;
+	}
+	
+	/**
+	 * gets the XML-String of this element and containing subelements
+	 */
+	public abstract String getXMLString(int nIterationDepth);
 }

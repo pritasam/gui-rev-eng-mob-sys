@@ -1,3 +1,20 @@
+//    MockVNC-Client, extends the original Tight-VNC-Client from 
+//	  http://www.tightvnc.com/ for GUI-Reverseengineering-features
+//    for mobile devices.
+//    Copyright (C) 2012  Oliver Laudi
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * 
  */
@@ -35,7 +52,6 @@ import de.ostfalia.mockup.datamodel.mock.CMockTimedLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
 import de.ostfalia.mockup.datamodel.storyboard.CKey;
 import de.ostfalia.mockup.datamodel.storyboard.CSequence;
-import de.ostfalia.mockup.datamodel.storyboard.CStoryEvent;
 import de.ostfalia.mockup.datamodel.storyboard.CStoryboard;
 import de.ostfalia.mockup.datamodel.storyboard.CSwipe;
 import de.ostfalia.mockup.datamodel.storyboard.CSwipePoint;
@@ -190,55 +206,52 @@ public class CMockupGenerator {
 		}
 	}
 	
-	/**
-	 * detect buttons in images stored in PicMap
-	 * @return
-	 */
-	private boolean detectButtons() {
-		// iterate picMap
-		if (this.m_picMap != null) {
-			for (String strMD5 : this.m_picMap.keySet()) {
-				List<String> lstEmt		= this.m_picMap.get(strMD5);
-				
-				// get first Value in List
-				if (lstEmt != null) {
-					// iterate through valueList
-					for (String strPicID : lstEmt) {
-						// check sequences with strPicId as startID
-						if (m_storyboard != null) {
-							for (int nSeq = 0; nSeq < m_storyboard.getSequences().size(); nSeq++) {
-								CSequence seq = m_storyboard.getSequences().get(String.valueOf(nSeq + 1));
-								// only if startID of Sequence fits strPicID
-								if (seq.getSTARTID().equals(strPicID)) {
-									//TODO auch für ASYNCs
-									// Check for each Screenshot, if there is a click or swipe event
-									for (int nSync = 0; nSync < seq.getMapSYNC().size(); nSync++) {
-										CStoryEvent storyEvent = seq.getMapSYNC().get(String.valueOf(nSync + 1));
-										
-										if (storyEvent instanceof CTouch) {
-											if (lstEmt.size() > 0) {
-												CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
-																						   "scr_" + strPicID + ".png");
-												
-												// testdata
-												analyze.getSurroundedRect(new Point(Integer.valueOf(((CTouch)storyEvent).getX()), 
-																					Integer.valueOf(((CTouch)storyEvent).getY())));
-											}
-										}
-										//TODO Swipe?
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-		
-		
-		
-		return true;
-	}
+//	/**
+//	 * detect buttons in images stored in PicMap
+//	 * @return
+//	 */
+//	private boolean detectButtons() {
+//		// iterate picMap
+//		if (this.m_picMap != null) {
+//			for (String strMD5 : this.m_picMap.keySet()) {
+//				List<String> lstEmt		= this.m_picMap.get(strMD5);
+//				
+//				// get first Value in List
+//				if (lstEmt != null) {
+//					// iterate through valueList
+//					for (String strPicID : lstEmt) {
+//						// check sequences with strPicId as startID
+//						if (m_storyboard != null) {
+//							for (int nSeq = 0; nSeq < m_storyboard.getSequences().size(); nSeq++) {
+//								CSequence seq = m_storyboard.getSequences().get(String.valueOf(nSeq + 1));
+//								// only if startID of Sequence fits strPicID
+//								if (seq.getSTARTID().equals(strPicID)) {
+//									//TODO auch für ASYNCs
+//									// Check for each Screenshot, if there is a click or swipe event
+//									for (int nSync = 0; nSync < seq.getMapSYNC().size(); nSync++) {
+//										CStoryEvent storyEvent = seq.getMapSYNC().get(String.valueOf(nSync + 1));
+//										
+//										if (storyEvent instanceof CTouch) {
+//											if (lstEmt.size() > 0) {
+//												CPicAnalyzer analyze	= new CPicAnalyzer("Screenshots" + File.separator + 
+//																						   "scr_" + strPicID + ".png");
+//												
+//												// testdata
+//												analyze.getSurroundedRect(new Point(Integer.valueOf(((CTouch)storyEvent).getX()), 
+//																					Integer.valueOf(((CTouch)storyEvent).getY())));
+//											}
+//										}
+//										//TODO Swipe?
+//									}
+//								}
+//							}
+//						}
+//					}
+//				}
+//			}
+//		}
+//		return true;
+//	}
 	
 	/**
 	 * builds the mocktree based on the storyboard and the picMap

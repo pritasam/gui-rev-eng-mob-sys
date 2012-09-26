@@ -45,7 +45,6 @@ public class CInputRecorder{
 	private CStoryboard						m_storyboard;
 	private CSequence						m_sequence;
 	private long							m_lTimeStamp;
-	private long							m_lngLastSeqBegin;
 	private long							m_lngLastEventEnd;
 	private byte 							m_buttonMask;
 	private short 							m_x;
@@ -162,8 +161,7 @@ public class CInputRecorder{
 		m_SwipePoints				= null;
 		m_storyboard 				= new CStoryboard(0, 0);
 		m_lTimeStamp				= System.currentTimeMillis();
-		m_lngLastSeqBegin			= 0;
-		m_lngLastEventEnd			= 0;
+		m_lngLastEventEnd			= System.currentTimeMillis();
 		m_nSwipePointsCount			= 0;
 		m_lLastSwipePoint			= 0;
 		m_isSwipePointsRecording	= false;
@@ -200,10 +198,7 @@ public class CInputRecorder{
 				if ((1 == ((PointerEventMessage) message).getButtonMask()) && 
 						(m_lastButtonMask != ((PointerEventMessage) message).getButtonMask())) {
 					// Button pressed
-					
-					m_lngLastSeqBegin 			= m_lTimeStamp;
 					m_lTimeStamp				= System.currentTimeMillis();
-					m_lngLastEventEnd 			= 0;
 					m_isSwipePointsRecording	= true;
 					m_SwipePoints				= new HashMap<Integer, CSwipePoint>();
 					m_nSwipePointsCount			= 0;
@@ -217,7 +212,8 @@ public class CInputRecorder{
 					}
 						
 					// create new sequence
-					this.m_sequence = new CSequence(String.valueOf(m_lTimeStamp), "", String.valueOf(m_lTimeStamp - m_lngLastSeqBegin));
+					this.m_sequence = new CSequence(String.valueOf(m_lTimeStamp), "", String.valueOf(m_lTimeStamp - m_lngLastEventEnd));
+					m_lngLastEventEnd 			= 0;
 					
 					// save messagedata for decision of Eventtype
 					m_buttonMask = ((PointerEventMessage)message).getButtonMask();
@@ -263,9 +259,7 @@ public class CInputRecorder{
 			}
 			else if (message instanceof KeyEventMessage) {
 				if (((KeyEventMessage)message).isDownFlag()) {
-					m_lngLastSeqBegin 	= m_lTimeStamp;
 					m_lTimeStamp		= System.currentTimeMillis();
-					m_lngLastEventEnd 	= 0;
 					
 					saveScreenshot(receiverTask.getRenderer(), m_lTimeStamp);
 					// add last sequence to storyboard if exits and set targetID
@@ -275,7 +269,8 @@ public class CInputRecorder{
 					}
 						
 					// create new sequence
-					this.m_sequence = new CSequence(String.valueOf(m_lTimeStamp), "", String.valueOf(m_lTimeStamp - m_lngLastSeqBegin));
+					this.m_sequence = new CSequence(String.valueOf(m_lTimeStamp), "", String.valueOf(m_lTimeStamp - m_lngLastEventEnd));
+					m_lngLastEventEnd 			= 0;
 					
 //					// pressed
 //					CLogger.getInst(CLogger.SYS_OUT).writeline("InputRecorder::processMessage: " + message.toString());

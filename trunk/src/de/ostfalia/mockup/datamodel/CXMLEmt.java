@@ -3,10 +3,6 @@
  */
 package de.ostfalia.mockup.datamodel;
 
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics2D;
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.BufferedImage;
 import java.io.BufferedWriter;
@@ -14,21 +10,15 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
-import java.util.jar.JarEntry;
-import java.util.jar.JarOutputStream;
-//import java.util.zip.ZipEntry;
-//import java.util.zip.ZipOutputStream;
+
 import org.apache.tools.zip.*;
 
 import javax.imageio.ImageIO;
-import javax.swing.plaf.metal.MetalIconFactory.FolderIcon16;
 
 import de.ostfalia.mockup.datamodel.diagram.CDiagramConsts;
-import de.ostfalia.mockup.datamodel.mock.CMockDocumentRoot;
 import de.ostfalia.mockup.datamodel.mock.CMockRegionLink;
 import de.ostfalia.mockup.datamodel.mock.CMockView;
 import de.ostfalia.screenshot.analysis.CPreviewGenerator;
@@ -138,7 +128,7 @@ public class CXMLEmt {
 	 * @param strDiagramName
 	 * @return
 	 */
-	public boolean saveToMockjarFile(String strDiagramName, HashMap<String, List<String>> picMap) {
+	public boolean saveToMockjarFile(String strDiagramName, HashMap<String, List<String>> picMap, String strStartID) {
 		// gen Mock-file
 		boolean	isSuccess	= new File("DiagMock" + File.separator + 
 											strDiagramName + File.separator + 
@@ -148,7 +138,7 @@ public class CXMLEmt {
 			isSuccess = saveMockFile(new File("DiagMock" + File.separator + 
 												strDiagramName + File.separator + 
 													"diagrams" + File.separator +
-														strDiagramName + "UTF8.mock"), "UTF-8");
+														strDiagramName + ".mock"), "UTF-8");
 		
 		// gen Diagram-File
 		if (isSuccess) {
@@ -177,7 +167,7 @@ public class CXMLEmt {
 			isSuccess = savePreviewFile(new File("DiagMock" + File.separator +
 													strDiagramName + File.separator + 
 														"export" + File.separator +
-															"preview.jpg"), strDiagramName, picMap);
+															"preview.jpg"), strDiagramName, picMap, strStartID);
 		}
 		
 		// copy mockup-pictures to folder "images"
@@ -294,10 +284,10 @@ public class CXMLEmt {
 	 * @param picMap
 	 * @return
 	 */
-	private boolean savePreviewFile(File fPrevFile, String strMockupName, HashMap<String, List<String>> picMap) {
+	private boolean savePreviewFile(File fPrevFile, String strMockupName, HashMap<String, List<String>> picMap, String strStartID) {
 		boolean			isSuccess 		= true;
 		CPreviewGenerator prevGen		= new CPreviewGenerator();
-		BufferedImage	biPreview		= prevGen.getPreviewGraphic(picMap, strMockupName);
+		BufferedImage	biPreview		= prevGen.getPreviewGraphic(picMap, strMockupName, strStartID);
 		
 		try {
 			isSuccess = ImageIO.write(biPreview, "jpg", fPrevFile);
@@ -387,18 +377,12 @@ public class CXMLEmt {
 	private boolean createMockjarFile(String strFolderToFiles, String strMockUpName) {
 		boolean			isSuccess 	= true;
 		ZipOutputStream zipOut		= null;
-//		JarOutputStream jarOut		= null;
 		
 		try {
 			zipOut = new ZipOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
 			zipOut.setEncoding("UTF-8");
-//			jarOut = new JarOutputStream(new FileOutputStream(strFolderToFiles + ".mockjar"));
-			
 		} catch (FileNotFoundException e) {
 			isSuccess = false;
-			e.printStackTrace();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		finally
@@ -411,12 +395,6 @@ public class CXMLEmt {
 				
 				if (zipOut != null)
 					zipOut.close();
-				
-//				iterateMockupFolder(new File(strFolderToFiles), jarOut, 
-//						strFolderToFiles.substring(0, strFolderToFiles.length() - strMockUpName.length()));
-//
-//				if (jarOut != null)
-//					jarOut.close();
 			}
 			catch(Exception ex)
 			{
@@ -441,23 +419,22 @@ public class CXMLEmt {
 			for (int i = 0; i < files.length; i++) {
 				if (files[i].isDirectory()) {
 					// recursive call with subfolder
-					iterateMockupFolder(files[i], zipOut, strRootFolder);
-//					iterateMockupFolder(files[i], jarOut, strRootFolder);
-					
+					iterateMockupFolder(files[i], zipOut, strRootFolder);					
 					}
 				else {
 					// add file to archiv
 					try {
-						String strPath			= files[i].getPath(); //.substring(strRootFolder.length());
+						String strPath			= files[i].getPath();
 						FileInputStream inFile 	= new FileInputStream(strPath);
-						zipOut.putNextEntry(new ZipEntry(strPath.substring(strRootFolder.length())));
-//						jarOut.putNextEntry(new JarEntry(strPath.substring(strRootFolder.length())));
+						String strEntryName		= strPath.substring(strRootFolder.length());
+						// Replace Fileseperator because else the MockViewer aborts 
+						strEntryName			= strEntryName.replace("\\", "/");
+						zipOut.putNextEntry(new ZipEntry(strEntryName));
 						byte[] buffer = new byte[4096];
 						int nLen;
 						
 						while ((nLen = inFile.read(buffer)) > 0) {
 							zipOut.write(buffer, 0, nLen);
-//							jarOut.write(buffer, 0, nLen);
 						}
 						
 						inFile.close();

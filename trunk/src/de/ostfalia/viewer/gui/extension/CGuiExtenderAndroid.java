@@ -111,8 +111,9 @@ public class CGuiExtenderAndroid extends CGuiExtender {
 		context.sendMessage(new KeyEventMessage(Keymap.K_CTRL_LEFT, false));
 	}
 	
-	private void sendAndroidRotateKey(ProtocolContext context) {
-		context.sendMessage(new KeyEventMessage(Keymap.K_F4, true));
-		context.sendMessage(new KeyEventMessage(Keymap.K_F4, false));
-	}
+	// Not in use now
+//	private void sendAndroidRotateKey(ProtocolContext context) {
+//		context.sendMessage(new KeyEventMessage(Keymap.K_F4, true));
+//		context.sendMessage(new KeyEventMessage(Keymap.K_F4, false));
+//	}
 }

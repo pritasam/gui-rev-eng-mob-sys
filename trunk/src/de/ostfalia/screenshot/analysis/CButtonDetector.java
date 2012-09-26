@@ -6,7 +6,6 @@ package de.ostfalia.screenshot.analysis;
 import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
-import java.awt.geom.Line2D;
 import java.awt.image.BufferedImage;
 
 /**

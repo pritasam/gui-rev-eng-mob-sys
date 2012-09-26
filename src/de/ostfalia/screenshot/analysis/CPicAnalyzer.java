@@ -1,3 +1,20 @@
+//    MockVNC-Client, extends the original Tight-VNC-Client from 
+//	  http://www.tightvnc.com/ for GUI-Reverseengineering-features
+//    for mobile devices.
+//    Copyright (C) 2012  Oliver Laudi
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * 
  */
@@ -70,7 +87,7 @@ public class CPicAnalyzer {
 		// Detect button
 		Rectangle outRect = null;
 		BufferedImage biHoughImage = null;
-		outRect = processButtonDetector(biEdgeImage, pPoint, biHoughImage);
+		outRect = processButtonDetector(biEdgeImage, pPoint, biHoughImage, this.m_strImageFile);
 		saveBufferedImage(biHoughImage, this.m_strImageFile + "ButtonDetect.png");
 		
 		return outRect;
@@ -96,21 +113,21 @@ public class CPicAnalyzer {
 		return detector.getEdgesImage();
 	}
 	
-	/**
-	 * HoughTransformation Algo
-	 * @param biSource
-	 * @return
-	 */
-	private BufferedImage processHoughTransform(BufferedImage biSource) {
-		// create HoughTransformator
-		HoughTransform hTrans	= new HoughTransform();
-		
-		return hTrans.process(biSource);
-		
-//		HoughLines hTrans	= new HoughLines();
+//	/**
+//	 * HoughTransformation Algo
+//	 * @param biSource
+//	 * @return
+//	 */
+//	private BufferedImage processHoughTransform(BufferedImage biSource) {
+//		// create HoughTransformator
+//		HoughTransform hTrans	= new HoughTransform();
+//		
 //		return hTrans.process(biSource);
-		
-	}
+//		
+////		HoughLines hTrans	= new HoughLines();
+////		return hTrans.process(biSource);
+//		
+//	}
 	
 	/**
 	 * ButtonDetection for a given Point
@@ -118,11 +135,11 @@ public class CPicAnalyzer {
 	 * @param pPoint
 	 * @return
 	 */
-	private Rectangle processButtonDetector(BufferedImage biSource, Point pPoint, BufferedImage biOut) {
+	private Rectangle processButtonDetector(BufferedImage biSource, Point pPoint, BufferedImage biOut, String strImageFile) {
 		// create CButtonDetector
 		CButtonDetector buttonDetect	= new CButtonDetector();
 		
-		return buttonDetect.process(biSource, pPoint, biOut);
+		return buttonDetect.process(biSource, pPoint, biOut, strImageFile);
 	}
 	
 	/**

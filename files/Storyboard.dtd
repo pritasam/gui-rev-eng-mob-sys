@@ -1,0 +1,46 @@
+<!ELEMENT Storyboard (Sequence*)>
+<!ATTLIST Storyboard
+	id CDATA #REQUIRED
+	width CDATA #REQUIRED
+	height CDATA #REQUIRED>
+
+<!ELEMENT Sequence (Async?, Sync?)>
+<!ATTLIST Sequence
+	id CDATA #REQUIRED
+	startID CDATA #REQUIRED
+	targetID CDATA #REQUIRED
+	delay CDATA #REQUIRED>
+	
+<!ELEMENT Async (Key*, Touch*, Swipe*)>
+
+<!ELEMENT Sync (Key*, Touch*, Swipe*)>
+
+<!ELEMENT Key EMPTY>
+<!ATTLIST Key
+	id CDATA #REQUIRED
+	pressed CDATA #REQUIRED
+	keycode CDATA #REQUIRED
+	dura CDATA #REQUIRED
+	delay CDATA #REQUIRED>
+	
+<!ELEMENT Touch EMPTY>
+<!ATTLIST Touch
+	id CDATA #REQUIRED
+	btn CDATA #REQUIRED
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED
+	dura CDATA #REQUIRED
+	delay CDATA #REQUIRED>
+	
+<!ELEMENT Swipe (SwipePoint+)>
+<!ATTLIST Swipe
+	id CDATA #REQUIRED
+	btn CDATA #REQUIRED
+	dura CDATA #REQUIRED
+	delay CDATA #REQUIRED>
+	
+<!ELEMENT SwipePoint EMPTY>
+<!ATTLIST SwipePoint
+	id CDATA #REQUIRED
+	x CDATA #REQUIRED
+	y CDATA #REQUIRED>

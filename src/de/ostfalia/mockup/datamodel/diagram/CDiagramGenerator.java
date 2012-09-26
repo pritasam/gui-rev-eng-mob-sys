@@ -18,14 +18,39 @@
 /**
  * 
  */
-package de.ostfalia.mockup.datamodel;
+package de.ostfalia.mockup.datamodel.diagram;
+
+import de.ostfalia.mockup.datamodel.CXMLEmt;
 
 /**
  * @author O. Laudi
  *
  */
-public enum EnumLinkCategory {
-	Touch,
-	LongTouch,
-	Swipe
+public class CDiagramGenerator {
+
+	// Member
+	protected String	m_strMockName	= "";
+	protected CXMLEmt	m_xmlMock 		= null;
+	protected CDiagram 	m_diagTree		= null;
+	
+	/**
+	 * Constructor
+	 * @param xmlMock
+	 */
+	public CDiagramGenerator(CXMLEmt xmlMock, String strMockName) {
+		m_strMockName	= strMockName;
+		m_xmlMock 		= xmlMock;
+	}
+	
+	/**
+	 * returns the xml-string of the diagramfile
+	 * @return strXMLReturn
+	 */
+	public String getXMLString() {
+		// generate Diagramtree
+		m_diagTree	= new CDiagram(m_strMockName);
+		
+		// get XML-String
+		return m_diagTree.getXMLString(0);
+	}
 }

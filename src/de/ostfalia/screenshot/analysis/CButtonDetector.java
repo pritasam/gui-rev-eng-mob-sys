@@ -1,3 +1,20 @@
+//    MockVNC-Client, extends the original Tight-VNC-Client from 
+//	  http://www.tightvnc.com/ for GUI-Reverseengineering-features
+//    for mobile devices.
+//    Copyright (C) 2012  Oliver Laudi
+//
+//    This program is free software: you can redistribute it and/or modify
+//    it under the terms of the GNU General Public License as published by
+//    the Free Software Foundation, either version 3 of the License, or
+//    (at your option) any later version.
+//
+//    This program is distributed in the hope that it will be useful,
+//    but WITHOUT ANY WARRANTY; without even the implied warranty of
+//    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+//    GNU General Public License for more details.
+//
+//    You should have received a copy of the GNU General Public License
+//    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /**
  * 
  */
@@ -7,6 +24,10 @@ import java.awt.Color;
 import java.awt.Point;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+
+import javax.imageio.ImageIO;
 
 /**
  * @author O. Laudi
@@ -45,7 +66,7 @@ public class CButtonDetector {
 	 * @param biSource
 	 * @return
 	 */
-	public Rectangle process(BufferedImage biSource, Point pPoint, BufferedImage biOutput) {
+	public Rectangle process(BufferedImage biSource, Point pPoint, BufferedImage biOutput, String strImageFile) {
 		// load the file using Java's imageIO library 
         biOutput	= new BufferedImage(biSource.getColorModel(),
         								biSource.copyData(biSource.getRaster()),
@@ -68,7 +89,14 @@ public class CButtonDetector {
         Rectangle outRect = getProcessedRectangle(biOutput);
         // draw rectangle on picture
         drawRectOnBI(biOutput, outRect);
-        
+
+    	try {
+		    // retrieve image
+		    ImageIO.write(biOutput, "png", new File(strImageFile + "ButtonDetect.png"));
+		} catch (IOException e) {
+		    e.printStackTrace();
+		}
+    	
         return outRect;
 	}
 	

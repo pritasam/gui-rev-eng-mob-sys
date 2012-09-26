@@ -18,14 +18,26 @@
 /**
  * 
  */
-package de.ostfalia.mockup.datamodel;
+package de.ostfalia.mockup.datamodel.diagram;
 
 /**
  * @author O. Laudi
  *
  */
-public enum EnumLinkCategory {
-	Touch,
-	LongTouch,
-	Swipe
+public class CDiagramTimedLink extends CXMLDiagramEmt {
+
+	public CDiagramTimedLink(String strMockName) {
+		super(strMockName);
+		// TODO Auto-generated constructor stub
+	}
+
+	/* (non-Javadoc)
+	 * @see de.ostfalia.mockup.datamodel.diagram.CXMLDiagramEmt#getXMLString(int)
+	 */
+	@Override
+	public String getXMLString(int nIterationDepth) {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
 }

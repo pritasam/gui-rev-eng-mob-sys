@@ -3,7 +3,6 @@
  */
 package de.ostfalia.mockup.datamodel.storyboard;
 
-import java.awt.Point;
 import java.util.HashMap;
 
 /**

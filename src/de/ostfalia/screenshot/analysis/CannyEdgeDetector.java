@@ -256,10 +256,13 @@ public class CannyEdgeDetector {
 		initArrays();
 		readLuminance();
 		if (contrastNormalized) normalizeContrast();
+		// 1.
 		computeGradients(gaussianKernelRadius, gaussianKernelWidth);
 		int low = Math.round(lowThreshold * MAGNITUDE_SCALE);
 		int high = Math.round( highThreshold * MAGNITUDE_SCALE);
+		// 2 + 3
 		performHysteresis(low, high);
+		// 4
 		thresholdEdges();
 		writeEdges(data);
 	}

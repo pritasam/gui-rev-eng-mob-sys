@@ -10,9 +10,6 @@ import java.io.File;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageInputStream;
-
-import com.glavsoft.drawing.Renderer;
 
 import de.ostfalia.viewer.logger.CLogger;
 

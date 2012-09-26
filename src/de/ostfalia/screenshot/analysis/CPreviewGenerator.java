@@ -25,65 +25,42 @@ import de.ostfalia.mockup.datamodel.diagram.CDiagramConsts;
 public class CPreviewGenerator {
 
 	// consts
-	protected final int nPICCELLWIDTTH	= 200;
-	protected final int nPICCELLHEIGHT	= 200;
+	protected final int nPICCELLWIDTTH	= 1280;
+	protected final int nPICCELLHEIGHT	= 800;
+	
 	/**
-	 * 
+	 * Constructor
 	 */
 	public CPreviewGenerator() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
-	public BufferedImage getPreviewGraphic(HashMap<String, List<String>> picMap, String strMockupName) {
+	public BufferedImage getPreviewGraphic(HashMap<String, List<String>> picMap, String strMockupName, String strStartID) {
 		BufferedImage biPreview	= null;
-		Point pPicRes			= null;
-		if (picMap != null) {
-			if (picMap.size() > 0) {
-				// get resolution of the first picture
-				for (String strMD5 : picMap.keySet()) {
-					List<String> lstPics	= picMap.get(strMD5);
-					if (lstPics.size() > 0) {
-						String strPicName = lstPics.get(0);
-						BufferedImage bi;
-						try {
-							bi = ImageIO.read(new FileInputStream("Screenshots/scr_" + strPicName + ".png"));
-							if (bi != null) {
-								pPicRes = new Point(bi.getWidth(), bi.getHeight());
-								if (pPicRes != null) {
-									break;
-								}
-							}
-						} catch (FileNotFoundException e) {
-							e.printStackTrace();
-						} catch (IOException e) {
-							e.printStackTrace();
-						}
-					}
-				}
-				Point pPrevRes	= getPreviewResolution(pPicRes, picMap.size());
-				biPreview		= new BufferedImage(pPrevRes.x, pPrevRes.y, BufferedImage.TYPE_INT_RGB);
-				Graphics2D g	= biPreview.createGraphics();
-				
-				for (String strMD5 : picMap.keySet()) {
-					List<String> lstPics	= picMap.get(strMD5);
-					if (lstPics.size() > 0) {
-						String strPicName 	= lstPics.get(0);
-//						Point pPosiOfPic 	= getPosiOfPic()
-					}
-				}
-				
-				for (int y = 0; y < pPrevRes.y; y++) {
-					for (int x = 0; x < pPrevRes.x; x++) {
-						drawPic(x, y, strMockupName, g);
-					}
-				}
-				
-//				g.setBackground(Color.LIGHT_GRAY);
-//				//g.setColor(Color.BLACK);
-//				g.setFont(new Font("Arial", Font.BOLD, 32));
-//				g.drawString(strMockupName, 15, pPrevRes.y / 2);
+		
+		BufferedImage bi;
+		try {
+			bi = ImageIO.read(new FileInputStream("Screenshots/scr_" + strStartID + ".png"));
+		
+			// Generate preview out of first picture in Map
+			biPreview		= new BufferedImage(nPICCELLWIDTTH, nPICCELLHEIGHT, BufferedImage.TYPE_INT_RGB);
+			Graphics2D g	= biPreview.createGraphics();
+			
+			// draw picture
+			g.setBackground(Color.LIGHT_GRAY);
+			
+			if (bi != null) {
+				drawPic(bi, g);
 			}
+			
+			// draw MockApp-name
+			g.setColor(Color.WHITE);
+			g.setFont(new Font("Arial", Font.BOLD, 48));
+			g.drawString("MockApp: " + strMockupName, 16, nPICCELLHEIGHT - 64);
+		} catch (FileNotFoundException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 		
 		return biPreview;
@@ -112,31 +89,23 @@ public class CPreviewGenerator {
 		return new Point(nX, nY);
 	}
 	
-	private void drawPic(int x, int y, String strPicName, Graphics2D gOut) {
+	private void drawPic(BufferedImage biIn, Graphics2D gOut) {
 		if (gOut != null) {
-			x = (x * nPICCELLWIDTTH) + (nPICCELLWIDTTH / 2);
-			y = (y * nPICCELLHEIGHT) + (nPICCELLHEIGHT / 2);
-			BufferedImage bi;
-			try {
-				bi = ImageIO.read(new FileInputStream("Screenshots/scr_" + strPicName + ".png"));
-				if (bi != null) {
-					// y1/x1 is for iterating bufferedimage
-					// y/x is for iterating gOut Graphic
-					for (int y1 = 0; y1 < bi.getHeight(); y1 = y1 + (bi.getHeight() / (nPICCELLHEIGHT / 2))) {
-						for (int x1 = 0; x1 < bi.getHeight(); x1 = x1 + (bi.getHeight() / (nPICCELLWIDTTH / 2))) {
-							Color px = new Color(bi.getRGB(x, y));
-							gOut.setColor(px);
-							gOut.fillRect(x, y, 1, 1);
-							x++;
-						}
-						x = (x * nPICCELLWIDTTH) + (nPICCELLWIDTTH / 2);
-						y++;
+			int x = (nPICCELLWIDTTH / 2) - (biIn.getWidth() / 2);
+			int y = 0;
+			if (biIn != null) {
+				// y1/x1 is for iterating biIn
+				// y/x is for iterating gOut Graphic
+				for (int y1 = 0; y1 < biIn.getHeight(); y1++) {
+					for (int x1 = 0; x1 < biIn.getWidth(); x1++) {
+						Color px = new Color(biIn.getRGB(x1, y1));
+						gOut.setColor(px);
+						gOut.fillRect(x, y, 1, 1);
+						x++;
 					}
+					x = (nPICCELLWIDTTH / 2) - (biIn.getWidth() / 2);
+					y++;
 				}
-			} catch (FileNotFoundException e) {
-				e.printStackTrace();
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
 		}
 	}

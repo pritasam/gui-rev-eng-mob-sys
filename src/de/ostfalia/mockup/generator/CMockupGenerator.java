@@ -15,7 +15,6 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map.Entry;
 
 import javax.imageio.ImageIO;
 
@@ -51,14 +50,12 @@ import de.ostfalia.viewer.gui.extension.CProgressWnd;
 public class CMockupGenerator {
 	private String							m_strDiagramName;
 	private CXMLEmt							m_mockTree;
-	private CXMLEmt							m_diagramTree;
 	private CStoryboard						m_storyboard;
 	private HashMap<String, List<String>>	m_picMap;
 	
 	public CMockupGenerator(String strDiagramName, CStoryboard	storyboard) {
 		m_strDiagramName	= strDiagramName;
 		m_mockTree 			= null;
-		m_diagramTree		= null;
 		m_storyboard		= storyboard;
 	}
 	
@@ -79,7 +76,7 @@ public class CMockupGenerator {
 		mockApp.addChildNode(new CMockEnd("_End"));
 		m_mockTree.addChildNode(mockApp);
 		//TODO: m_picMap mit Master1 und Master2.png initialisieren
-		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap);
+		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap, "Master1");
 	}
 	
 	/**
@@ -253,6 +250,7 @@ public class CMockupGenerator {
 		boolean isStoryLandscape	= false;
 		boolean	isStateAvailable	= false;
 		int		nNextRegionID		= 0;
+		String strStartID			= "";
 		
 		m_mockTree = new CMockDocumentRoot();
 		CMockApplication mockApp 	= new CMockApplication(m_strDiagramName, 0);
@@ -430,6 +428,7 @@ public class CMockupGenerator {
 			if (nSeq == 1) {
 				// if first seq, then add start
 				CMockStart mockStart = new CMockStart("_Start", findMD5forID(sequence.getSTARTID()));
+				strStartID = sequence.getSTARTID();
 				mockStart.addChildNode(new CMockStartLink("Start123", findMD5forID(sequence.getSTARTID())));
 				seqInMockApp.add(mockStart);
 			}
@@ -469,7 +468,7 @@ public class CMockupGenerator {
 		//mockApp.addChildNode(seqInMockApp);
 		mockApp.setNextRegionID(nNextRegionID);
 		m_mockTree.addChildNode(mockApp);
-		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap);
+		return m_mockTree.saveToMockjarFile(m_strDiagramName, m_picMap, strStartID);
 	}
 	
 	/**

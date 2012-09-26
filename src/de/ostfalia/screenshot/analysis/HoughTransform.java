@@ -6,8 +6,6 @@ package de.ostfalia.screenshot.analysis;
 import java.awt.image.BufferedImage; 
 import java.awt.*; 
 import java.util.Vector; 
-import java.io.File; 
-import java.io.IOException;
  
 /** 
  * <p/> 
